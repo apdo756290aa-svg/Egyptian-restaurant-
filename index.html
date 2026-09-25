@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>كشري الزعيم</title>
+<style>
+:root {
+  --primary: #ff6b00;
+  --bg-color: #f8f9fa;
+  --card-bg: #ffffff;
+  --text-color: #333;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
+
+body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70px; }
+
+.header {
+  position: sticky; top: 0; z-index: 1000; background: var(--primary); color: #fff;
+  display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.brand-title { font-weight: bold; font-size: 16px; display: flex; align-items: center; gap: 6px; }
+
+.cart-badge {
+  background: #fff; color: var(--primary); padding: 5px 12px; border-radius: 20px;
+  font-weight: bold; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer;
+}
+
+.hero { position: relative; height: 160px; overflow: hidden; }
+.hero img { width: 100%; height: 100%; object-fit: cover; }
+.hero-text {
+  position: absolute; bottom: 12px; right: 12px; background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px); color: #fff; padding: 8px 16px; border-radius: 12px; font-size: 14px;
+}
+
+.search-box { padding: 12px 15px 0 15px; }
+.search-box input {
+  width: 100%; padding: 10px 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; outline: none;
+}
+
+.closed-banner {
+  background: #e74c3c; color: white; text-align: center; padding: 10px; font-weight: bold; font-size: 13px; display: none;
+}
+
+.page { display: none; }
+.page.active { display: block; }
+
+.category-title {
+  background: #fff3eb; color: #d35400; padding: 10px 15px; margin-top: 15px;
+  font-size: 15px; font-weight: bold; border-right: 5px solid var(--primary);
+}
+
+.menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
+
+.card {
+  background: var(--card-bg); border-radius: 16px; overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;
+}
+.card img { width: 100%; height: 110px; object-fit: cover; background:#eee; }
+.card-body { padding: 10px; text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+.card-title { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
+.price { color: var(--primary); font-weight: bold; font-size: 14px; margin: 6px 0; }
+
+.size-select {
+  width: 100%; padding: 6px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 8px; font-size: 12px; background: #fff;
+}
+
+.add-btn {
+  background: var(--primary); color: #fff; border: none; width: 100%; padding: 9px;
+  border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 13px;
+}
+
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; background: #fff; display: flex;
+  justify-content: space-around; padding: 8px 0; box-shadow: 0 -3px 15px rgba(0,0,0,0.08); z-index: 2000;
+}
+.bottom-nav div { text-align: center; font-size: 11px; color: #888; cursor: pointer; flex: 1; }
+.bottom-nav div span { font-size: 18px; display: block; margin-bottom: 2px; }
+.bottom-nav div.active { color: var(--primary); font-weight: bold; }
+
+.form-box {
+  background: #fff; margin: 15px; padding: 16px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.form-box label { font-size: 13px; color: #666; font-weight: bold; }
+.form-box input, .form-box textarea {
+  width: 100%; padding: 10px; margin: 6px 0 12px 0; border: 1px solid #e2e8f0; border-radius: 10px; outline: none; font-size: 14px;
+}
+
+.cart-item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #eee; }
+.qty-controls { display: flex; align-items: center; gap: 8px; }
+.qty-btn { width: 28px; height: 28px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: #fff; }
+
+.order-card { padding: 14px; margin: 10px 15px; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-right: 6px solid #ff6b00; }
+
+#toast {
+  position: fixed; top: 65px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85);
+  color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 13px; display: none; z-index: 3000;
+}
+</style>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body>
+
+<div id="toast">تمت الإضافة للسلة</div>
+<div id="closedBanner" class="closed-banner">🔴 المطعم مغلق حالياً ولا يستقبل طلبات جديدة</div>
+
+<div class="header">
+  <div class="brand-title">🔥 كشري الزعيم</div>
+  <div class="cart-badge" onclick="showPage('cart')">
+    🛒 (<span id="count">0</span>) <span id="total">0</span> ج
+  </div>
+</div>
+
+<!-- الرئيسية -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600">
+    <div class="hero-text"><h3>💥 أهلاً بكم في كشري الزعيم!</h3></div>
+  </div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="🔍 ابحث عن صنف..." onkeyup="filterMenu()">
+  </div>
+  <h3 style="padding: 12px 15px 0 15px; font-size:15px;">⭐ المنيو</h3>
+  <div class="menu-grid" id="homeMenu">جاري التحميل...</div>
+</div>
+
+<!-- المنيو الكامل -->
+<div id="page-menu" class="page">
+  <h2 style="padding: 15px 15px 0 15px; font-size: 18px;">🔥 المنيو الكامل</h2>
+  <div class="search-box">
+    <input type="text" id="searchInputFull" placeholder="🔍 ابحث في القائمة..." onkeyup="filterMenuFull()">
+  </div>
+  <div id="fullMenuContainer">جاري التحميل...</div>
+</div>
+
+<!-- السلة -->
+<div id="page-cart" class="page">
+  <h2 style="padding: 15px 15px 0 15px; font-size: 18px;">🛒 سلة الطلبات</h2>
+  <div class="form-box" id="cartItems">السلة فارغة حالياً</div>
+  <div class="form-box">
+    <label>📝 ملاحظات إضافية:</label>
+    <textarea id="orderNotes" rows="2" placeholder="مثال: بدون بصل، زيادة شطة..."></textarea>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <span>الإجمالي:</span>
+      <b style="color:var(--primary); font-size:18px;"><span id="modalTotal">0</span> جنيه</b>
+    </div><br>
+    <button id="orderBtn" class="add-btn" style="background:#25D366; font-size:15px;" onclick="orderWhats()">تأكيد الطلب عبر الواتساب 📱</button>
+  </div>
+</div>
+
+<!-- حسابي -->
+<div id="page-account" class="page">
+  <h2 style="padding: 15px 15px 0 15px; font-size: 18px;">👤 بيانات التوصيل</h2>
+  <div class="form-box">
+    <label>الاسم الكامل:</label><input id="nameInput" placeholder="اسمك">
+    <label>رقم الموبايل:</label><input id="phoneInput" placeholder="01xxxxxxxxx">
+    <label>العنوان التفصيلي:</label><input id="addressInput" placeholder="المنطقة والشارع">
+    <button class="add-btn" style="background:#27ae60; margin-bottom:10px;" onclick="getLocation()">📍 تحديد موقعي على الخريطة</button>
+    <input type="hidden" id="geoLinkInput">
+    <button class="add-btn" onclick="saveAccount()">حفظ البيانات ✅</button>
+  </div>
+</div>
+
+<!-- طلباتي -->
+<div id="page-orders" class="page">
+  <h2 style="padding: 15px 15px 0 15px; font-size: 18px;">📋 سجل طلباتي</h2>
+  <div id="ordersList">ادخل رقمك في صفحة حسابي لعرض طلباتك</div>
+</div>
+
+<div class="bottom-nav">
+  <div id="nav-home" class="active" onclick="showPage('home')"><span>🏠</span>الرئيسية</div>
+  <div id="nav-menu" onclick="showPage('menu')"><span>🍛</span>المنيو</div>
+  <div id="nav-cart" onclick="showPage('cart')"><span>🛒</span>السلة</div>
+  <div id="nav-account" onclick="showPage('account')"><span>👤</span>حسابي</div>
+  <div id="nav-orders" onclick="showPage('orders')"><span>📋</span>طلباتي</div>
+</div>
+
+<script>
+const firebaseConfig = {
+  databaseURL: "https://apdowebsite-99ed7-default-rtdb.europe-west1.firebasedatabase.app/"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let allItems = [], cart = {}, restaurantPhone = "201148041323", isStoreOpen = true, prevStatus = {};
+
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(e => e.classList.remove('active'));
+  document.getElementById('page-' + p)?.classList.add('active');
+  document.querySelectorAll('.bottom-nav div').forEach(e => e.classList.remove('active'));
+  document.getElementById('nav-' + p)?.classList.add('active');
+  if(p === 'orders') renderOrders();
+  window.scrollTo(0, 0);
+}
+
+db.ref('settings/isOpen').on('value', snap => {
+  isStoreOpen = snap.exists() ? snap.val() : true;
+  document.getElementById('closedBanner').style.display = isStoreOpen ? 'none' : 'block';
+  const btn = document.getElementById('orderBtn');
+  if(btn) { btn.disabled = !isStoreOpen; btn.style.background = isStoreOpen ? '#25D366' : '#ccc'; }
+});
+
+db.ref('menu').on('value', snap => {
+  const d = snap.val();
+  allItems = d ? (Array.isArray(d) ? d.filter(x=>x) : Object.values(d)) : [];
+  
+  allItems.forEach(item => {
+    if (item.name && item.name.includes("فراولة")) {
+      item.img = "https://i.ibb.co/L5hSvdS/strawberry-juice.jpg";
+    }
+  });
+
+  renderMenuPages();
+});
+
+db.ref('settings/wa').on('value', snap => { if(snap.exists()) restaurantPhone = snap.val(); });
+
+function cardHTML(it, idx) {
+  const name = it.name || 'صنف', img = it.img || 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400';
+  let priceHTML = "", actionBtn = "";
+
+  if (it.sizes && Object.keys(it.sizes).length > 0) {
+    let opt = Object.entries(it.sizes).map(([s, p]) => `<option value="${s}:${p}">${s} - ${p}ج</option>`).join('');
+    priceHTML = `<select class="size-select" id="size_sel_${idx}">${opt}</select>`;
+    actionBtn = `<button class="add-btn" onclick="addSizedToCart('${name.replace(/'/g, "\\'")}', ${idx})">+ إضافة</button>`;
+  } else {
+    priceHTML = `<div class="price">${it.price || 0} ج</div>`;
+    actionBtn = `<button class="add-btn" onclick="addToCart('${name.replace(/'/g, "\\'")}', ${it.price || 0})">+ إضافة</button>`;
+  }
+
+  return `<div class="card"><img src="${img}"><div class="card-body"><div class="card-title">${name}</div>${priceHTML}${actionBtn}</div></div>`;
+}
+
+function renderMenuPages(list = allItems) {
+  const homeEl = document.getElementById('homeMenu'), fullEl = document.getElementById('fullMenuContainer');
+  if(homeEl) homeEl.innerHTML = list.map((it, i) => cardHTML(it, i)).join('') || '<p style="grid-column:span 2; text-align:center;">لا توجد نتائج</p>';
+
+  let fullHTML = "";
+  ["طواجن ورئيسي", "مشويات", "مقبلات", "حلويات", "مشروبات"].forEach(cat => {
+    const fil = list.map((it, idx) => ({...it, idx})).filter(it => it.category === cat);
+    if(fil.length > 0) fullHTML += `<div class="category-title">📂 ${cat}</div><div class="menu-grid">` + fil.map(it => cardHTML(it, it.idx)).join('') + `</div>`;
+  });
+  if(fullEl) fullEl.innerHTML = fullHTML || homeEl.innerHTML;
+  loadUserData();
+}
+
+function filterMenu() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  renderMenuPages(allItems.filter(i => i.name && i.name.toLowerCase().includes(q)));
+}
+function filterMenuFull() {
+  const q = document.getElementById('searchInputFull').value.toLowerCase();
+  renderMenuPages(allItems.filter(i => i.name && i.name.toLowerCase().includes(q)));
+}
+
+function addSizedToCart(name, idx) {
+  if(!isStoreOpen) return alert("المحل مغلق حالياً");
+  const sel = document.getElementById(`size_sel_${idx}`);
+  if(sel) { const [s, p] = sel.value.split(':'); addToCart(`${name} (${s})`, parseFloat(p)); }
+}
+
+function addToCart(name, price) {
+  if(!isStoreOpen) return alert("المحل مغلق حالياً");
+  cart[name] = cart[name] ? { price, quantity: cart[name].quantity + 1 } : { price, quantity: 1 };
+  updateCartUI(); showToast(`تمت إضافة ${name}`);
+}
+
+function changeQty(name, amt) {
+  if(cart[name]) { cart[name].quantity += amt; if(cart[name].quantity <= 0) delete cart[name]; updateCartUI(); }
+}
+
+function updateCartUI() {
+  let count = 0, total = 0, html = "";
+  Object.keys(cart).forEach(k => {
+    count += cart[k].quantity; total += cart[k].price * cart[k].quantity;
+    html += `<div class="cart-item-row"><div><b>${k}</b><br><small>${cart[k].price} ج</small></div>
+    <div class="qty-controls">
+      <button class="qty-btn" style="background:#e74c3c" onclick="changeQty('${k.replace(/'/g, "\\'")}', -1)">-</button>
+      <b>${cart[k].quantity}</b>
+      <button class="qty-btn" style="background:#27ae60" onclick="changeQty('${k.replace(/'/g, "\\'")}', 1)">+</button>
+    </div></div>`;
+  });
+  document.getElementById('count').innerText = count;
+  document.getElementById('total').innerText = total;
+  document.getElementById('modalTotal').innerText = total;
+  document.getElementById('cartItems').innerHTML = html || "السلة فارغة حالياً";
+}
+
+function showToast(t) {
+  const el = document.getElementById('toast'); el.innerText = t; el.style.display = 'block'; setTimeout(()=>el.style.display='none',1500);
+}
+
+function loadUserData() {
+  const u = JSON.parse(localStorage.getItem('user_data') || '{}');
+  if(u.name) document.getElementById('nameInput').value = u.name;
+  if(u.phone) document.getElementById('phoneInput').value = u.phone;
+  if(u.address) document.getElementById('addressInput').value = u.address;
+  if(u.geoLink) document.getElementById('geoLinkInput').value = u.geoLink;
+}
+
+function saveAccount() {
+  const name = document.getElementById('nameInput').value.trim();
+  const phone = document.getElementById('phoneInput').value.trim();
+  const address = document.getElementById('addressInput').value.trim();
+  const geoLink = document.getElementById('geoLinkInput').value;
+  if(!name || !phone || !address) return alert("من فضلك اكمل البيانات");
+  localStorage.setItem('user_data', JSON.stringify({ name, phone, address, geoLink }));
+  alert("تم الحفظ بنجاح ✅");
+}
+
+/* دالة تحديد الموقع المحدثة بمعالجة الأخطاء والتنبيهات */
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                const mapLink = `https://www.maps.google.com/?q=${lat},${lon}`;
+                document.getElementById('geoLinkInput').value = mapLink;
+                alert("تم تحديد موقعك الحالي بنجاح! 📍");
+            },
+            (error) => {
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        alert("تم رفض طلب إذن الموقع. يرجى السماح للمتصفح بالوصول لموقعك أو استخدام الخريطة يدويأ.");
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        alert("معلومات الموقع غير متاحة حالياً.");
+                        break;
+                    case error.TIMEOUT:
+                        alert("انتهت مهلة طلب تحديد الموقع.");
+                        break;
+                    default:
+                        alert("حدث خطأ غير معروف أثناء جلب الموقع.");
+                        break;
+                }
+            },
+            { timeout: 10000, enableHighAccuracy: true }
+        );
+    } else {
+        alert("متصفحك لا يدعم خاصية تحديد الموقع الجغرافي.");
+    }
+}
+
+function orderWhats() {
+  if(!isStoreOpen) return alert("المحل مغلق حالياً");
+  const keys = Object.keys(cart);
+  if(keys.length === 0) return alert("السلة فارغة!");
+  const user = JSON.parse(localStorage.getItem('user_data') || '{}');
+  if(!user.name || !user.phone || !user.address) { alert("أدخل بياناتك أولاً"); showPage('account'); return; }
+
+  const notes = document.getElementById('orderNotes').value.trim();
+  let tot = 0, msg = `*طلب جديد من كشري الزعيم*\n\n`;
+  keys.forEach(k => { msg += `• ${k} × ${cart[k].quantity} = ${cart[k].price * cart[k].quantity}ج\n`; tot += cart[k].price * cart[k].quantity; });
+  if(notes) msg += `\n📝 *ملاحظات:* ${notes}`;
+  msg += `\n\n💵 *الإجمالي:* ${tot} ج\n👤 *الاسم:* ${user.name}\n📞 *الهاتف:* ${user.phone}\n📍 *العنوان:* ${user.address}`;
+  if(user.geoLink) msg += `\n🗺️ *الموقع:* ${user.geoLink}`;
+
+  db.ref('orders').push({
+    customer: user, items: cart, notes, total: tot, status: "قيد الانتظار ⏳", date: new Date().toLocaleString('ar-EG'), timestamp: Date.now()
+  });
+
+  window.open(`https://wa.me/${restaurantPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+  cart = {}; updateCartUI(); showPage('orders');
+}
+
+function renderOrders() {
+  const user = JSON.parse(localStorage.getItem('user_data') || '{}');
+  if(!user.phone) return;
+  db.ref('orders').on('value', snap => {
+    const data = snap.val() || {};
+    let html = "";
+    Object.keys(data).reverse().forEach(k => {
+      const ord = data[k];
+      if(ord.customer?.phone === user.phone) {
+        if(prevStatus[k] && prevStatus[k] !== ord.status) {
+          new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(()=>{});
+        }
+        prevStatus[k] = ord.status;
+        let itemsTxt = "";
+        if(ord.items) Object.entries(ord.items).forEach(([n, d]) => itemsTxt += `• ${n} × ${d.quantity}<br>`);
+        html += `<div class="order-card">
+          <div style="display:flex; justify-content:space-between;"><b>طلب #${k.slice(-4)}</b><b style="color:var(--primary)">${ord.status}</b></div>
+          <small>📅 ${ord.date}</small><br><br><div>${itemsTxt}</div>
+          <b>الإجمالي: ${ord.total} جنيه</b>
+        </div>`;
+      }
+    });
+    document.getElementById('ordersList').innerHTML = html || "<p style='text-align:center;'>لا توجد طلبات سابقة</p>";
+  });
+}
+</script>
+</body>
+</html>
