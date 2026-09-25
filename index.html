@@ -376,19 +376,38 @@ function getMyLocation() {
     return;
   }
 
-  showToast("⏳ جاري تحديد الموقع...", "#2980b9");
+  showToast("⏳ جاري جلب عنوانك تلقائياً...", "#2980b9");
 
   navigator.geolocation.getCurrentPosition(
-    (position) => {
+    async (position) => {
       const lat = position.coords.latitude;
       const lon = position.coords.longitude;
       const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
       
+      try {
+        // استخدام خدمة مجانية لتحويل الإحداثيات لاسم الشارع والمنطقة
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ar`);
+        const data = await response.json();
+        
+        if (data && data.address) {
+          const road = data.address.road || data.address.suburb || data.address.city_district || '';
+          const neighborhood = data.address.neighbourhood || data.address.city || '';
+          const fullStreet = (road + ' ' + neighborhood).trim();
+          
+          if (fullStreet) {
+            document.getElementById('addressInput').value = fullStreet;
+          }
+        }
+      } catch (e) {
+        console.log("فشل الجلب التلقائي للنص، تم الاكتفاء بالرابط والإحداثيات");
+      }
+
       let userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+      userData.address = document.getElementById('addressInput').value;
       userData.geoLink = mapLink;
       localStorage.setItem('user_data', JSON.stringify(userData));
       
-      showToast("✅ تم التقاط موقعك الجغرافي بنجاح وإرفاقه بالطلب!", "#2ecc71");
+      showToast("✅ تم جلب الموقع والشارع تلقائياً بنجاح!", "#2ecc71");
     },
     (error) => {
       showToast("❌ تعذر تحديد الموقع. تأكد من تفعيل الـ GPS والسماح للمتصفح.", "#e74c3c");
@@ -418,8 +437,6 @@ function orderWhats() {
   
   if(user.geoLink) {
     msg += `\n🗺️ *موقع الخريطة (GPS):* ${user.geoLink}`;
-  } else {
-    msg += `\n🗺️ *موقع الخريطة:* لم يقم بتحديد الموقع`;
   }
 
   db.ref('orders').push({
