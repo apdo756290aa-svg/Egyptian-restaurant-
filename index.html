@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>كشري الزعيم</title>
+<title>المطعم المصري</title>
 <style>
 :root {
   --primary: #ff6b00;
@@ -96,8 +96,9 @@ body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70
 .order-card { padding: 14px; margin: 10px 15px; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-right: 6px solid #ff6b00; }
 
 #toast {
-  position: fixed; top: 65px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85);
-  color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 13px; display: none; z-index: 3000;
+  position: fixed; top: 15px; left: 50%; transform: translateX(-50%); background: #2ecc71;
+  color: #fff; padding: 10px 24px; border-radius: 30px; font-size: 14px; font-weight: bold;
+  display: none; z-index: 5000; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center;
 }
 </style>
 
@@ -110,7 +111,7 @@ body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70
 <div id="closedBanner" class="closed-banner">🔴 المطعم مغلق حالياً ولا يستقبل طلبات جديدة</div>
 
 <div class="header">
-  <div class="brand-title">🔥 كشري الزعيم</div>
+  <div class="brand-title" id="customerStoreName">المطعم المصري</div>
   <div class="cart-badge" onclick="showPage('cart')">
     🛒 (<span id="count">0</span>) <span id="total">0</span> ج
   </div>
@@ -120,7 +121,7 @@ body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70
 <div id="page-home" class="page active">
   <div class="hero">
     <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600">
-    <div class="hero-text"><h3>💥 أهلاً بكم في كشري الزعيم!</h3></div>
+    <div class="hero-text"><h3>الاكل الاصلي</h3></div>
   </div>
   <div class="search-box">
     <input type="text" id="searchInput" placeholder="🔍 ابحث عن صنف..." onkeyup="filterMenu()">
@@ -135,7 +136,7 @@ body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70
   <div class="search-box">
     <input type="text" id="searchInputFull" placeholder="🔍 ابحث في القائمة..." onkeyup="filterMenuFull()">
   </div>
-  <div id="fullMenuContainer">جاري التحميل...</div>
+  <div id="fullMenuContainer">لا يوجد اتصال بي الانترنت</div>
 </div>
 
 <!-- السلة -->
@@ -157,10 +158,21 @@ body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70
 <div id="page-account" class="page">
   <h2 style="padding: 15px 15px 0 15px; font-size: 18px;">👤 بيانات التوصيل</h2>
   <div class="form-box">
-    <label>الاسم الكامل:</label><input id="nameInput" placeholder="اسمك">
-    <label>رقم الموبايل:</label><input id="phoneInput" placeholder="01xxxxxxxxx">
-    <label>العنوان التفصيلي:</label><input id="addressInput" placeholder="المنطقة والشارع">
-    <button class="add-btn" style="background:#27ae60; margin-bottom:10px;" onclick="getLocation()">📍 تحديد موقعي على الخريطة</button>
+    <label>الاسم (يُرجى كتابة الاسم رباعياً صحيحاً):</label>
+    <input id="nameInput" placeholder="">
+    
+    <label>رقم الموبايل (11 رقم صحيح):</label>
+    <input id="phoneInput" placeholder="">
+    
+    <label>العنوان التفصيلي:</label>
+    <input id="addressInput" placeholder="المنطقة والشارع ">
+
+    <label>📍 تحديد الموقع على الخريطة:</label>
+    <div style="display: flex; gap: 8px; margin: 6px 0 12px 0;">
+      <button type="button" class="add-btn" style="background:#27ae60; flex: 1; font-size: 12px; padding: 8px;" onclick="getMyLocation()">📍 تلقائي (GPS)</button>
+      <button type="button" class="add-btn" style="background:#2980b9; flex: 1; font-size: 12px; padding: 8px;" onclick="openMapManual()">🗺️ اختيار يدوي</button>
+    </div>
+    
     <input type="hidden" id="geoLinkInput">
     <button class="add-btn" onclick="saveAccount()">حفظ البيانات ✅</button>
   </div>
@@ -169,7 +181,7 @@ body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70
 <!-- طلباتي -->
 <div id="page-orders" class="page">
   <h2 style="padding: 15px 15px 0 15px; font-size: 18px;">📋 سجل طلباتي</h2>
-  <div id="ordersList">ادخل رقمك في صفحة حسابي لعرض طلباتك</div>
+  <div id="ordersList" class="form-box">ادخل رقمك في صفحة حسابي لعرض طلباتك</div>
 </div>
 
 <div class="bottom-nav">
@@ -186,6 +198,15 @@ const firebaseConfig = {
 };
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+
+db.ref('settings/storeName').on('value', snap => {
+  const storeName = snap.val() || 'المطعم المصري';
+  const nameEl = document.getElementById('customerStoreName');
+  if (nameEl) {
+    nameEl.innerText = storeName;
+  }
+  document.title = storeName;
+});
 
 let allItems = [], cart = {}, restaurantPhone = "201148041323", isStoreOpen = true, prevStatus = {};
 
@@ -227,10 +248,10 @@ function cardHTML(it, idx) {
   if (it.sizes && Object.keys(it.sizes).length > 0) {
     let opt = Object.entries(it.sizes).map(([s, p]) => `<option value="${s}:${p}">${s} - ${p}ج</option>`).join('');
     priceHTML = `<select class="size-select" id="size_sel_${idx}">${opt}</select>`;
-    actionBtn = `<button class="add-btn" onclick="addSizedToCart('${name.replace(/'/g, "\\'")}', ${idx})">+ إضافة</button>`;
+    actionBtn = `<button class="add-btn" onclick="addSizedToCart('${name.replace(/'/g, "\\\\'")}', ${idx})">+ إضافة</button>`;
   } else {
     priceHTML = `<div class="price">${it.price || 0} ج</div>`;
-    actionBtn = `<button class="add-btn" onclick="addToCart('${name.replace(/'/g, "\\'")}', ${it.price || 0})">+ إضافة</button>`;
+    actionBtn = `<button class="add-btn" onclick="addToCart('${name.replace(/'/g, "\\\\'")}', ${it.price || 0})">+ إضافة</button>`;
   }
 
   return `<div class="card"><img src="${img}"><div class="card-body"><div class="card-title">${name}</div>${priceHTML}${actionBtn}</div></div>`;
@@ -267,7 +288,7 @@ function addSizedToCart(name, idx) {
 function addToCart(name, price) {
   if(!isStoreOpen) return alert("المحل مغلق حالياً");
   cart[name] = cart[name] ? { price, quantity: cart[name].quantity + 1 } : { price, quantity: 1 };
-  updateCartUI(); showToast(`تمت إضافة ${name}`);
+  updateCartUI(); showToast(`تمت إضافة ${name}`, '#2ecc71');
 }
 
 function changeQty(name, amt) {
@@ -280,9 +301,9 @@ function updateCartUI() {
     count += cart[k].quantity; total += cart[k].price * cart[k].quantity;
     html += `<div class="cart-item-row"><div><b>${k}</b><br><small>${cart[k].price} ج</small></div>
     <div class="qty-controls">
-      <button class="qty-btn" style="background:#e74c3c" onclick="changeQty('${k.replace(/'/g, "\\'")}', -1)">-</button>
+      <button class="qty-btn" style="background:#e74c3c" onclick="changeQty('${k.replace(/'/g, "\\\\'")}', -1)">-</button>
       <b>${cart[k].quantity}</b>
-      <button class="qty-btn" style="background:#27ae60" onclick="changeQty('${k.replace(/'/g, "\\'")}', 1)">+</button>
+      <button class="qty-btn" style="background:#27ae60" onclick="changeQty('${k.replace(/'/g, "\\\\'")}', 1)">+</button>
     </div></div>`;
   });
   document.getElementById('count').innerText = count;
@@ -291,8 +312,12 @@ function updateCartUI() {
   document.getElementById('cartItems').innerHTML = html || "السلة فارغة حالياً";
 }
 
-function showToast(t) {
-  const el = document.getElementById('toast'); el.innerText = t; el.style.display = 'block'; setTimeout(()=>el.style.display='none',1500);
+function showToast(t, color = '#2ecc71') {
+  const el = document.getElementById('toast');
+  el.innerText = t;
+  el.style.background = color;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3000);
 }
 
 function loadUserData() {
@@ -308,54 +333,77 @@ function saveAccount() {
   const phone = document.getElementById('phoneInput').value.trim();
   const address = document.getElementById('addressInput').value.trim();
   const geoLink = document.getElementById('geoLinkInput').value;
-  if(!name || !phone || !address) return alert("من فضلك اكمل البيانات");
+
+  const nameWords = name.split(/\s+/).filter(w => w.length > 0);
+  if (!name || nameWords.length < 4 || /^[0-9]+$/.test(name)) {
+    showToast("❌ خطأ: يجب كتابة الاسم رباعياً بشكل صحيح (4 أسماء على الأقل)", "#e74c3c");
+    document.getElementById('nameInput').focus();
+    return;
+  }
+
+  const phoneRegex = /^01[0125][0-9]{8}$/;
+  if (!phoneRegex.test(phone)) {
+    showToast("❌ خطأ: رقم الموبايل غير صحيح (يجب أن يكون 11 رقم ويبدأ بـ 01)", "#e74c3c");
+    document.getElementById('phoneInput').focus();
+    return;
+  }
+
+  if (!address || address.length < 5) {
+    showToast("❌ خطأ: يرجى كتابة العنوان بالتفصيل", "#e74c3c");
+    document.getElementById('addressInput').focus();
+    return;
+  }
+
   localStorage.setItem('user_data', JSON.stringify({ name, phone, address, geoLink }));
-  alert("تم الحفظ بنجاح ✅");
+  showToast("✅ تم حفظ بيانات التوصيل بنجاح!", "#2ecc71");
 }
 
-/* دالة تحديد الموقع المحدثة بمعالجة الأخطاء والتنبيهات */
-function getLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                const mapLink = `https://www.maps.google.com/?q=${lat},${lon}`;
-                document.getElementById('geoLinkInput').value = mapLink;
-                alert("تم تحديد موقعك الحالي بنجاح! 📍");
-            },
-            (error) => {
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        alert("تم رفض طلب إذن الموقع. يرجى السماح للمتصفح بالوصول لموقعك أو استخدام الخريطة يدويأ.");
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        alert("معلومات الموقع غير متاحة حالياً.");
-                        break;
-                    case error.TIMEOUT:
-                        alert("انتهت مهلة طلب تحديد الموقع.");
-                        break;
-                    default:
-                        alert("حدث خطأ غير معروف أثناء جلب الموقع.");
-                        break;
-                }
-            },
-            { timeout: 10000, enableHighAccuracy: true }
-        );
-    } else {
-        alert("متصفحك لا يدعم خاصية تحديد الموقع الجغرافي.");
-    }
+function getMyLocation() {
+  if (!navigator.geolocation) {
+    alert("❌ متصفحك لا يدعم تحديد الموقع.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
+      
+      document.getElementById('geoLinkInput').value = mapLink;
+      
+      let userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+      userData.geoLink = mapLink;
+      localStorage.setItem('user_data', JSON.stringify(userData));
+      
+      showToast("✅ تم تحديد موقعك الجغرافي بنجاح!", "#2ecc71");
+    },
+    (error) => {
+      showToast("❌ تعذر تحديد الموقع. تأكد من تفعيل الـ GPS والسماح للمتصفح.", "#e74c3c");
+    },
+    { enableHighAccuracy: true }
+  );
+}
+
+function openMapManual() {
+  window.open('https://www.google.com/maps', '_blank');
+  showToast("🗺️ قم بنسخ رابط موقعك من الخريطة وضعه في تفاصيل العنوان", "#2980b9");
 }
 
 function orderWhats() {
   if(!isStoreOpen) return alert("المحل مغلق حالياً");
   const keys = Object.keys(cart);
   if(keys.length === 0) return alert("السلة فارغة!");
+  
   const user = JSON.parse(localStorage.getItem('user_data') || '{}');
-  if(!user.name || !user.phone || !user.address) { alert("أدخل بياناتك أولاً"); showPage('account'); return; }
+  if(!user.name || !user.phone || !user.address) { 
+    showToast("⚠️ برجاء إدخال بياناتك في صفحة حسابي أولاً", "#e74c3c");
+    showPage('account'); 
+    return; 
+  }
 
   const notes = document.getElementById('orderNotes').value.trim();
-  let tot = 0, msg = `*طلب جديد من كشري الزعيم*\n\n`;
+  let tot = 0, msg = `*طلب جديد من المطعم المصري*\n\n`;
   keys.forEach(k => { msg += `• ${k} × ${cart[k].quantity} = ${cart[k].price * cart[k].quantity}ج\n`; tot += cart[k].price * cart[k].quantity; });
   if(notes) msg += `\n📝 *ملاحظات:* ${notes}`;
   msg += `\n\n💵 *الإجمالي:* ${tot} ج\n👤 *الاسم:* ${user.name}\n📞 *الهاتف:* ${user.phone}\n📍 *العنوان:* ${user.address}`;
@@ -371,7 +419,10 @@ function orderWhats() {
 
 function renderOrders() {
   const user = JSON.parse(localStorage.getItem('user_data') || '{}');
-  if(!user.phone) return;
+  if(!user.phone) {
+    document.getElementById('ordersList').innerHTML = "<p style='text-align:center;'>ادخل رقمك الصحيح في صفحة حسابي لعرض طلباتك</p>";
+    return;
+  }
   db.ref('orders').on('value', snap => {
     const data = snap.val() || {};
     let html = "";
