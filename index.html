@@ -84,9 +84,9 @@ body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70
 .form-box {
   background: #fff; margin: 15px; padding: 16px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
-.form-box label { font-size: 13px; color: #666; font-weight: bold; }
+.form-box label { font-size: 13px; color: #666; font-weight: bold; display: block; margin-top: 8px; }
 .form-box input, .form-box textarea {
-  width: 100%; padding: 10px; margin: 6px 0 12px 0; border: 1px solid #e2e8f0; border-radius: 10px; outline: none; font-size: 14px;
+  width: 100%; padding: 10px; margin: 4px 0 8px 0; border: 1px solid #e2e8f0; border-radius: 10px; outline: none; font-size: 14px;
 }
 
 .cart-item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #eee; }
@@ -159,22 +159,25 @@ body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70
   <h2 style="padding: 15px 15px 0 15px; font-size: 18px;">👤 بيانات التوصيل</h2>
   <div class="form-box">
     <label>الاسم (يُرجى كتابة الاسم رباعياً صحيحاً):</label>
-    <input id="nameInput" placeholder="">
+    <input id="nameInput" placeholder="الاسم رباعي">
     
     <label>رقم الموبايل (11 رقم صحيح):</label>
-    <input id="phoneInput" placeholder="">
+    <input id="phoneInput" placeholder="01xxxxxxxx0">
     
-    <label>العنوان التفصيلي:</label>
-    <input id="addressInput" placeholder="المنطقة والشارع ">
+    <label>المنطقة والشارع:</label>
+    <input id="addressInput" placeholder="مثال: شارع الهرم، الرئيسية">
+
+    <label>رقم العمارة ورقم الشقة والدور:</label>
+    <input id="buildingInput" placeholder="مثال: عمارة 5، الدور الثالث، شقة 12">
 
     <label>📍 تحديد الموقع على الخريطة:</label>
     <div style="display: flex; gap: 8px; margin: 6px 0 12px 0;">
-      <button type="button" class="add-btn" style="background:#27ae60; flex: 1; font-size: 12px; padding: 8px;" onclick="getMyLocation()">📍 تلقائي (GPS)</button>
-      <button type="button" class="add-btn" style="background:#2980b9; flex: 1; font-size: 12px; padding: 8px;" onclick="openMapManual()">🗺️ اختيار يدوي</button>
+      <button type="button" class="add-btn" style="background:#27ae60; flex: 1; font-size: 12px; padding: 8px;" onclick="getMyLocation()">📍 تحديد تلقائي (GPS)</button>
+      <button type="button" class="add-btn" style="background:#2980b9; flex: 1; font-size: 12px; padding: 8px;" onclick="openMapManual()">🗺️ وضع رابط الخريطة</button>
     </div>
     
-    <input type="hidden" id="geoLinkInput">
-    <button class="add-btn" onclick="saveAccount()">حفظ البيانات ✅</button>
+    <input id="geoLinkInput" placeholder="رابط الموقع (يظهر تلقائياً أو ضع الرابط هنا يدويياً)">
+    <button class="add-btn" onclick="saveAccount()" style="margin-top: 10px;">حفظ البيانات ✅</button>
   </div>
 </div>
 
@@ -325,6 +328,7 @@ function loadUserData() {
   if(u.name) document.getElementById('nameInput').value = u.name;
   if(u.phone) document.getElementById('phoneInput').value = u.phone;
   if(u.address) document.getElementById('addressInput').value = u.address;
+  if(u.building) document.getElementById('buildingInput').value = u.building;
   if(u.geoLink) document.getElementById('geoLinkInput').value = u.geoLink;
 }
 
@@ -332,29 +336,36 @@ function saveAccount() {
   const name = document.getElementById('nameInput').value.trim();
   const phone = document.getElementById('phoneInput').value.trim();
   const address = document.getElementById('addressInput').value.trim();
-  const geoLink = document.getElementById('geoLinkInput').value;
+  const building = document.getElementById('buildingInput').value.trim();
+  const geoLink = document.getElementById('geoLinkInput').value.trim();
 
   const nameWords = name.split(/\s+/).filter(w => w.length > 0);
   if (!name || nameWords.length < 4 || /^[0-9]+$/.test(name)) {
-    showToast("❌ خطأ: يجب كتابة الاسم رباعياً بشكل صحيح (4 أسماء على الأقل)", "#e74c3c");
+    showToast("❌ خطأ: يجب كتابة الاسم رباعياً بشكل صحيح", "#e74c3c");
     document.getElementById('nameInput').focus();
     return;
   }
 
   const phoneRegex = /^01[0125][0-9]{8}$/;
   if (!phoneRegex.test(phone)) {
-    showToast("❌ خطأ: رقم الموبايل غير صحيح (يجب أن يكون 11 رقم ويبدأ بـ 01)", "#e74c3c");
+    showToast("❌ خطأ: رقم الموبايل غير صحيح (11 رقم يبدأ بـ 01)", "#e74c3c");
     document.getElementById('phoneInput').focus();
     return;
   }
 
-  if (!address || address.length < 5) {
-    showToast("❌ خطأ: يرجى كتابة العنوان بالتفصيل", "#e74c3c");
+  if (!address || address.length < 3) {
+    showToast("❌ خطأ: يرجى كتابة المنطقة والشارع", "#e74c3c");
     document.getElementById('addressInput').focus();
     return;
   }
 
-  localStorage.setItem('user_data', JSON.stringify({ name, phone, address, geoLink }));
+  if (!building || building.length < 3) {
+    showToast("❌ خطأ: يرجى كتابة رقم العمارة والدور والشقة", "#e74c3c");
+    document.getElementById('buildingInput').focus();
+    return;
+  }
+
+  localStorage.setItem('user_data', JSON.stringify({ name, phone, address, building, geoLink }));
   showToast("✅ تم حفظ بيانات التوصيل بنجاح!", "#2ecc71");
 }
 
@@ -387,7 +398,7 @@ function getMyLocation() {
 
 function openMapManual() {
   window.open('https://www.google.com/maps', '_blank');
-  showToast("🗺️ قم بنسخ رابط موقعك من الخريطة وضعه في تفاصيل العنوان", "#2980b9");
+  showToast("🗺️ انسخ رابط موقعك من الخريطة والصقه في خانة رابط الموقع", "#2980b9");
 }
 
 function orderWhats() {
@@ -396,8 +407,8 @@ function orderWhats() {
   if(keys.length === 0) return alert("السلة فارغة!");
   
   const user = JSON.parse(localStorage.getItem('user_data') || '{}');
-  if(!user.name || !user.phone || !user.address) { 
-    showToast("⚠️ برجاء إدخال بياناتك في صفحة حسابي أولاً", "#e74c3c");
+  if(!user.name || !user.phone || !user.address || !user.building) { 
+    showToast("⚠️ برجاء إكمال بيانات التوصيل في صفحة حسابي أولاً", "#e74c3c");
     showPage('account'); 
     return; 
   }
@@ -406,8 +417,14 @@ function orderWhats() {
   let tot = 0, msg = `*طلب جديد من المطعم المصري*\n\n`;
   keys.forEach(k => { msg += `• ${k} × ${cart[k].quantity} = ${cart[k].price * cart[k].quantity}ج\n`; tot += cart[k].price * cart[k].quantity; });
   if(notes) msg += `\n📝 *ملاحظات:* ${notes}`;
-  msg += `\n\n💵 *الإجمالي:* ${tot} ج\n👤 *الاسم:* ${user.name}\n📞 *الهاتف:* ${user.phone}\n📍 *العنوان:* ${user.address}`;
-  if(user.geoLink) msg += `\n🗺️ *الموقع:* ${user.geoLink}`;
+  
+  msg += `\n\n💵 *الإجمالي:* ${tot} ج\n👤 *الاسم:* ${user.name}\n📞 *الهاتف:* ${user.phone}\n📍 *العنوان:* ${user.address}\n🏢 *التفاصيل:* ${user.building}`;
+  
+  if(user.geoLink) {
+    msg += `\n🗺️ *موقع الخريطة (GPS):* ${user.geoLink}`;
+  } else {
+    msg += `\n🗺️ *موقع الخريطة:* لم يقم بتحديد الموقع تلقائياً`;
+  }
 
   db.ref('orders').push({
     customer: user, items: cart, notes, total: tot, status: "قيد الانتظار ⏳", date: new Date().toLocaleString('ar-EG'), timestamp: Date.now()
