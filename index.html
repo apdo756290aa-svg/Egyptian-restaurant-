@@ -170,14 +170,11 @@ body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70
     <label>رقم العمارة ورقم الشقة والدور:</label>
     <input id="buildingInput" placeholder="مثال: عمارة 5، الدور الثالث، شقة 12">
 
-    <label>📍 تحديد الموقع على الخريطة:</label>
-    <div style="display: flex; gap: 8px; margin: 6px 0 12px 0;">
-      <button type="button" class="add-btn" style="background:#27ae60; flex: 1; font-size: 12px; padding: 8px;" onclick="getMyLocation()">📍 تحديد تلقائي (GPS)</button>
-      <button type="button" class="add-btn" style="background:#2980b9; flex: 1; font-size: 12px; padding: 8px;" onclick="openMapManual()">🗺️ وضع رابط الخريطة</button>
+    <div style="margin-top: 12px;">
+      <button type="button" class="add-btn" style="background:#27ae60; font-size: 13px; padding: 10px;" onclick="getMyLocation()">📍 تحديد الموقع الجغرافي تلقائياً (GPS)</button>
     </div>
     
-    <input id="geoLinkInput" placeholder="رابط الموقع (يظهر تلقائياً أو ضع الرابط هنا يدويياً)">
-    <button class="add-btn" onclick="saveAccount()" style="margin-top: 10px;">حفظ البيانات ✅</button>
+    <button class="add-btn" onclick="saveAccount()" style="margin-top: 14px;">حفظ البيانات ✅</button>
   </div>
 </div>
 
@@ -329,7 +326,6 @@ function loadUserData() {
   if(u.phone) document.getElementById('phoneInput').value = u.phone;
   if(u.address) document.getElementById('addressInput').value = u.address;
   if(u.building) document.getElementById('buildingInput').value = u.building;
-  if(u.geoLink) document.getElementById('geoLinkInput').value = u.geoLink;
 }
 
 function saveAccount() {
@@ -337,7 +333,6 @@ function saveAccount() {
   const phone = document.getElementById('phoneInput').value.trim();
   const address = document.getElementById('addressInput').value.trim();
   const building = document.getElementById('buildingInput').value.trim();
-  const geoLink = document.getElementById('geoLinkInput').value.trim();
 
   const nameWords = name.split(/\s+/).filter(w => w.length > 0);
   if (!name || nameWords.length < 4 || /^[0-9]+$/.test(name)) {
@@ -365,7 +360,13 @@ function saveAccount() {
     return;
   }
 
-  localStorage.setItem('user_data', JSON.stringify({ name, phone, address, building, geoLink }));
+  let existingData = JSON.parse(localStorage.getItem('user_data') || '{}');
+  existingData.name = name;
+  existingData.phone = phone;
+  existingData.address = address;
+  existingData.building = building;
+
+  localStorage.setItem('user_data', JSON.stringify(existingData));
   showToast("✅ تم حفظ بيانات التوصيل بنجاح!", "#2ecc71");
 }
 
@@ -375,30 +376,25 @@ function getMyLocation() {
     return;
   }
 
+  showToast("⏳ جاري تحديد الموقع...", "#2980b9");
+
   navigator.geolocation.getCurrentPosition(
     (position) => {
       const lat = position.coords.latitude;
       const lon = position.coords.longitude;
       const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
       
-      document.getElementById('geoLinkInput').value = mapLink;
-      
       let userData = JSON.parse(localStorage.getItem('user_data') || '{}');
       userData.geoLink = mapLink;
       localStorage.setItem('user_data', JSON.stringify(userData));
       
-      showToast("✅ تم تحديد موقعك الجغرافي بنجاح!", "#2ecc71");
+      showToast("✅ تم التقاط موقعك الجغرافي بنجاح وإرفاقه بالطلب!", "#2ecc71");
     },
     (error) => {
       showToast("❌ تعذر تحديد الموقع. تأكد من تفعيل الـ GPS والسماح للمتصفح.", "#e74c3c");
     },
     { enableHighAccuracy: true }
   );
-}
-
-function openMapManual() {
-  window.open('https://www.google.com/maps', '_blank');
-  showToast("🗺️ انسخ رابط موقعك من الخريطة والصقه في خانة رابط الموقع", "#2980b9");
 }
 
 function orderWhats() {
@@ -423,7 +419,7 @@ function orderWhats() {
   if(user.geoLink) {
     msg += `\n🗺️ *موقع الخريطة (GPS):* ${user.geoLink}`;
   } else {
-    msg += `\n🗺️ *موقع الخريطة:* لم يقم بتحديد الموقع تلقائياً`;
+    msg += `\n🗺️ *موقع الخريطة:* لم يقم بتحديد الموقع`;
   }
 
   db.ref('orders').push({
