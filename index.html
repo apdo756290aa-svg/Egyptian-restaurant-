@@ -136,7 +136,7 @@ body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70
   <div class="search-box">
     <input type="text" id="searchInputFull" placeholder="🔍 ابحث في القائمة..." onkeyup="filterMenuFull()">
   </div>
-  <div id="fullMenuContainer">لا يوجد اتصال بي الانترنت</div>
+  <div id="fullMenuContainer">لا يوجد اتصال بالإنترنت</div>
 </div>
 
 <!-- السلة -->
@@ -229,13 +229,6 @@ db.ref('settings/isOpen').on('value', snap => {
 db.ref('menu').on('value', snap => {
   const d = snap.val();
   allItems = d ? (Array.isArray(d) ? d.filter(x=>x) : Object.values(d)) : [];
-  
-  allItems.forEach(item => {
-    if (item.name && item.name.includes("فراولة")) {
-      item.img = "https://i.ibb.co/L5hSvdS/strawberry-juice.jpg";
-    }
-  });
-
   renderMenuPages();
 });
 
@@ -262,7 +255,8 @@ function renderMenuPages(list = allItems) {
   if(homeEl) homeEl.innerHTML = list.map((it, i) => cardHTML(it, i)).join('') || '<p style="grid-column:span 2; text-align:center;">لا توجد نتائج</p>';
 
   let fullHTML = "";
-  ["طواجن ورئيسي", "مشويات", "مقبلات", "حلويات", "مشروبات"].forEach(cat => {
+  // الأقسام المحدثة شاملة الأكلات البحرية والمشروبات الساخنة والباردة
+  ["طواجن ورئيسي", "أكلات بحرية", "مشويات", "مقبلات", "حلويات", "مشروبات ساخنة", "مشروبات ساقعة"].forEach(cat => {
     const fil = list.map((it, idx) => ({...it, idx})).filter(it => it.category === cat);
     if(fil.length > 0) fullHTML += `<div class="category-title">📂 ${cat}</div><div class="menu-grid">` + fil.map(it => cardHTML(it, it.idx)).join('') + `</div>`;
   });
@@ -354,13 +348,12 @@ function saveAccount() {
     return;
   }
 
-  // تم إلغاء شرط الإجبار هنا، أصبحت خانة العمارة والشقة اختيارية تماماً
-
+  // تم إلغاء شرط الإجبار لخانة العمارة والدور وأصبحت اختيارية تماماً
   let existingData = JSON.parse(localStorage.getItem('user_data') || '{}');
   existingData.name = name;
   existingData.phone = phone;
   existingData.address = address;
-  existingData.building = building; // سيتم حفظها سواء كانت مكتوبة أو فاضية
+  existingData.building = building;
 
   localStorage.setItem('user_data', JSON.stringify(existingData));
   showToast("✅ تم حفظ بيانات التوصيل بنجاح!", "#2ecc71");
