@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -10,11 +11,22 @@
   --bg-color: #f8f9fa;
   --card-bg: #ffffff;
   --text-color: #333;
+  --nav-bg: #ffffff;
+  --border-color: #ddd;
+}
+
+[data-theme="dark"] {
+  --primary: #ff8533;
+  --bg-color: #121212;
+  --card-bg: #1e1e1e;
+  --text-color: #f1f1f1;
+  --nav-bg: #1a1a1a;
+  --border-color: #333;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
 
-body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70px; }
+body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70px; transition: background 0.3s, color 0.3s; }
 
 .header {
   position: sticky; top: 0; z-index: 1000; background: var(--primary); color: #fff;
@@ -38,7 +50,7 @@ body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70
 
 .search-box { padding: 12px 15px 0 15px; }
 .search-box input {
-  width: 100%; padding: 10px 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; outline: none;
+  width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); border-radius: 10px; font-size: 14px; outline: none;
 }
 
 .closed-banner {
@@ -49,23 +61,28 @@ body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70
 .page.active { display: block; }
 
 .category-title {
-  background: #fff3eb; color: #d35400; padding: 10px 15px; margin-top: 15px;
-  font-size: 15px; font-weight: bold; border-right: 5px solid var(--primary);
+  background: var(--card-bg); color: var(--primary); padding: 10px 15px; margin-top: 15px;
+  font-size: 15px; font-weight: bold; border-right: 5px solid var(--primary); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);
 }
 
 .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
+.menu-grid.list-view { grid-template-columns: 1fr; }
 
 .card {
-  background: var(--card-bg); border-radius: 16px; overflow: hidden;
+  background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;
 }
+.menu-grid.list-view .card { flex-direction: row; align-items: center; }
+.menu-grid.list-view .card img { width: 100px; height: 100px; }
+
 .card img { width: 100%; height: 110px; object-fit: cover; background:#eee; }
 .card-body { padding: 10px; text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-.card-title { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
+.menu-grid.list-view .card-body { text-align: right; }
+.card-title { font-size: 14px; font-weight: bold; margin-bottom: 4px; color: var(--text-color); }
 .price { color: var(--primary); font-weight: bold; font-size: 14px; margin: 6px 0; }
 
 .size-select {
-  width: 100%; padding: 6px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 8px; font-size: 12px; background: #fff;
+  width: 100%; padding: 6px; margin-bottom: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); border-radius: 8px; font-size: 12px;
 }
 
 .add-btn {
@@ -74,26 +91,29 @@ body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70
 }
 
 .bottom-nav {
-  position: fixed; bottom: 0; left: 0; right: 0; background: #fff; display: flex;
-  justify-content: space-around; padding: 8px 0; box-shadow: 0 -3px 15px rgba(0,0,0,0.08); z-index: 2000;
+  position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); display: flex;
+  justify-content: space-around; padding: 8px 0; box-shadow: 0 -3px 15px rgba(0,0,0,0.08); z-index: 2000; border-top: 1px solid var(--border-color);
 }
-.bottom-nav div { text-align: center; font-size: 11px; color: #888; cursor: pointer; flex: 1; }
-.bottom-nav div span { font-size: 18px; display: block; margin-bottom: 2px; }
+.bottom-nav div { text-align: center; font-size: 10px; color: #888; cursor: pointer; flex: 1; }
+.bottom-nav div span { font-size: 16px; display: block; margin-bottom: 2px; }
 .bottom-nav div.active { color: var(--primary); font-weight: bold; }
 
 .form-box {
-  background: #fff; margin: 15px; padding: 16px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  background: var(--card-bg); border: 1px solid var(--border-color); margin: 15px; padding: 16px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
-.form-box label { font-size: 13px; color: #666; font-weight: bold; display: block; margin-top: 8px; }
-.form-box input, .form-box textarea {
-  width: 100%; padding: 10px; margin: 4px 0 8px 0; border: 1px solid #e2e8f0; border-radius: 10px; outline: none; font-size: 14px;
+.form-box label { font-size: 13px; color: var(--text-color); font-weight: bold; display: block; margin-top: 8px; }
+.form-box input, .form-box textarea, .form-box select {
+  width: 100%; padding: 10px; margin: 4px 0 8px 0; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); border-radius: 10px; outline: none; font-size: 14px;
 }
 
-.cart-item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #eee; }
+.cart-item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--border-color); }
 .qty-controls { display: flex; align-items: center; gap: 8px; }
 .qty-btn { width: 28px; height: 28px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: #fff; }
 
-.order-card { padding: 14px; margin: 10px 15px; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-right: 6px solid #ff6b00; }
+.order-card { padding: 14px; margin: 10px 15px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-right: 6px solid #ff6b00; }
+
+.categories-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 15px; }
+.cat-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
 #toast {
   position: fixed; top: 15px; left: 50%; transform: translateX(-50%); background: #2ecc71;
@@ -126,17 +146,18 @@ body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70
   <div class="search-box">
     <input type="text" id="searchInput" placeholder="🔍 ابحث عن صنف..." onkeyup="filterMenu()">
   </div>
-  <h3 style="padding: 12px 15px 0 15px; font-size:15px;">⭐ المنيو</h3>
+  <h3 style="padding: 12px 15px 0 15px; font-size:15px;">⭐ المنيو المقترح</h3>
   <div class="menu-grid" id="homeMenu">جاري التحميل...</div>
 </div>
 
-<!-- المنيو الكامل -->
+<!-- المنيو الكامل والأقسام -->
 <div id="page-menu" class="page">
-  <h2 style="padding: 15px 15px 0 15px; font-size: 18px;">🔥 المنيو الكامل</h2>
+  <h2 style="padding: 15px 15px 0 15px; font-size: 18px;">🔥 المنيو والأقسام</h2>
   <div class="search-box">
     <input type="text" id="searchInputFull" placeholder="🔍 ابحث في القائمة..." onkeyup="filterMenuFull()">
   </div>
-  <div id="fullMenuContainer">لا يوجد اتصال بالإنترنت</div>
+  <div id="categoriesViewContainer" class="categories-grid" style="margin-top:10px;"></div>
+  <div id="fullMenuContainer"></div>
 </div>
 
 <!-- السلة -->
@@ -184,12 +205,38 @@ body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70
   <div id="ordersList" class="form-box">ادخل رقمك في صفحة حسابي لعرض طلباتك</div>
 </div>
 
+<!-- الإعدادات ⚙️ -->
+<div id="page-settings" class="page">
+  <h2 style="padding: 15px 15px 0 15px; font-size: 18px;">⚙️ الإعدادات والتفضيلات</h2>
+  <div class="form-box">
+    <label>🌙 وضع المظهر:</label>
+    <select id="themeSelect" onchange="changeTheme(this.value)">
+      <option value="light">الوضع النهاري ☀️</option>
+      <option value="dark">الوضع الليلي 🌙</option>
+    </select>
+
+    <label style="margin-top: 15px;">📋 شكل عرض المنيو:</label>
+    <select id="viewStyleSelect" onchange="changeViewStyle(this.value)">
+      <option value="grid">عرض شبكي تقليدي 🖼️</option>
+      <option value="list">عرض القائمة المفصلة 📑</option>
+    </select>
+  </div>
+
+  <div class="form-box" style="text-align: center; line-height: 1.8;">
+    <h3 style="color: var(--primary); margin-bottom: 8px;">ℹ️ عن المطورين</h3>
+    <p><b>المطور/المصمم:</b> عبد الرحمن السيد محمود حسن علي عبد الحليم</p>
+    <p><b>المساعد الفني:</b> محمود عماد محمد مبروك</p>
+    <p><b>رقم التواصل:</b> <a href="tel:01148041323" style="color: var(--primary);">01148041323</a></p>
+  </div>
+</div>
+
 <div class="bottom-nav">
   <div id="nav-home" class="active" onclick="showPage('home')"><span>🏠</span>الرئيسية</div>
   <div id="nav-menu" onclick="showPage('menu')"><span>🍛</span>المنيو</div>
   <div id="nav-cart" onclick="showPage('cart')"><span>🛒</span>السلة</div>
   <div id="nav-account" onclick="showPage('account')"><span>👤</span>حسابي</div>
   <div id="nav-orders" onclick="showPage('orders')"><span>📋</span>طلباتي</div>
+  <div id="nav-settings" onclick="showPage('settings')"><span>⚙️</span>الإعدادات</div>
 </div>
 
 <script>
@@ -199,12 +246,32 @@ const firebaseConfig = {
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+// تحميل الإعدادات المحفوظة مسبقاً
+window.addEventListener('DOMContentLoaded', () => {
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  const themeEl = document.getElementById('themeSelect');
+  if(themeEl) themeEl.value = savedTheme;
+
+  const savedView = localStorage.getItem('viewStyle') || 'grid';
+  const viewEl = document.getElementById('viewStyleSelect');
+  if(viewEl) viewEl.value = savedView;
+});
+
+function changeTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+}
+
+function changeViewStyle(style) {
+  localStorage.setItem('viewStyle', style);
+  renderMenuPages();
+}
+
 db.ref('settings/storeName').on('value', snap => {
   const storeName = snap.val() || 'المطعم المصري';
   const nameEl = document.getElementById('customerStoreName');
-  if (nameEl) {
-    nameEl.innerText = storeName;
-  }
+  if (nameEl) nameEl.innerText = storeName;
   document.title = storeName;
 });
 
@@ -252,15 +319,23 @@ function cardHTML(it, idx) {
 
 function renderMenuPages(list = allItems) {
   const homeEl = document.getElementById('homeMenu'), fullEl = document.getElementById('fullMenuContainer');
+  const viewStyle = localStorage.getItem('viewStyle') || 'grid';
+  const gridClass = viewStyle === 'list' ? 'menu-grid list-view' : 'menu-grid';
+
+  if(homeEl) homeEl.className = gridClass;
   if(homeEl) homeEl.innerHTML = list.map((it, i) => cardHTML(it, i)).join('') || '<p style="grid-column:span 2; text-align:center;">لا توجد نتائج</p>';
 
   let fullHTML = "";
-  // الأقسام المحدثة شاملة الأكلات البحرية والمشروبات الساخنة والباردة
-  ["طواجن ورئيسي", "أكلات بحرية", "مشويات", "مقبلات", "حلويات", "مشروبات ساخنة", "مشروبات ساقعة"].forEach(cat => {
+  const categories = ["طواجن ورئيسي", "أكلات بحرية", "مشويات", "مقبلات", "حلويات", "مشروبات ساخنة", "مشروبات ساقعة"];
+  
+  categories.forEach(cat => {
     const fil = list.map((it, idx) => ({...it, idx})).filter(it => it.category === cat);
-    if(fil.length > 0) fullHTML += `<div class="category-title">📂 ${cat}</div><div class="menu-grid">` + fil.map(it => cardHTML(it, it.idx)).join('') + `</div>`;
+    if(fil.length > 0) {
+      fullHTML += `<div class="category-title" id="cat-${cat}">📂 ${cat}</div><div class="${gridClass}">` + fil.map(it => cardHTML(it, it.idx)).join('') + `</div>`;
+    }
   });
-  if(fullEl) fullEl.innerHTML = fullHTML || homeEl.innerHTML;
+
+  if(fullEl) fullEl.innerHTML = fullHTML || '<p style="text-align:center; padding:20px;">لا توجد أصناف مطابقة</p>';
   loadUserData();
 }
 
@@ -348,7 +423,6 @@ function saveAccount() {
     return;
   }
 
-  // تم إلغاء شرط الإجبار لخانة العمارة والدور وأصبحت اختيارية تماماً
   let existingData = JSON.parse(localStorage.getItem('user_data') || '{}');
   existingData.name = name;
   existingData.phone = phone;
@@ -386,7 +460,7 @@ function getMyLocation() {
             document.getElementById('addressInput').value = fullStreet;
           }
         }
-      } catch (e) {
+       } catch (e) {
         console.log("فشل الجلب التلقائي للنص");
       }
 
@@ -423,13 +497,8 @@ function orderWhats() {
   
   msg += `\n\n💵 *الإجمالي:* ${tot} ج\n👤 *الاسم:* ${user.name}\n📞 *الهاتف:* ${user.phone}\n📍 *العنوان:* ${user.address}`;
   
-  if(user.building) {
-    msg += `\n🏢 *تفاصيل العمارة:* ${user.building}`;
-  }
-  
-  if(user.geoLink) {
-    msg += `\n🗺️ *موقع الخريطة (GPS):* ${user.geoLink}`;
-  }
+  if(user.building) msg += `\n🏢 *تفاصيل العمارة:* ${user.building}`;
+  if(user.geoLink) msg += `\n🗺️ *موقع الخريطة (GPS):* ${user.geoLink}`;
 
   db.ref('orders').push({
     customer: user, items: cart, notes, total: tot, status: "قيد الانتظار ⏳", date: new Date().toLocaleString('ar-EG'), timestamp: Date.now()
