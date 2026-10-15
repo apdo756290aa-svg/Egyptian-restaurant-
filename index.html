@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>المطعم المصري</title>
 
-<!-- إعدادات تطبيق الويب (PWA) -->
-<link rel="manifest" href="manifest.json">
+<!-- إعدادات التطبيق والأيقونة مباشرة -->
 <meta name="theme-color" content="#ff6b00">
 <link rel="icon" href="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=192">
 <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=192">
@@ -514,6 +513,7 @@ function orderWhats() {
 }
 
 function renderOrders() {
+  .trim()
   const user = JSON.parse(localStorage.getItem('user_data') || '{}');
   if(!user.phone) {
     document.getElementById('ordersList').innerHTML = "<p style='text-align:center;'>ادخل رقمك الصحيح في صفحة حسابي لعرض طلباتك</p>";
