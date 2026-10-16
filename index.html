@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>المطعم المصري</title>
+
+<!-- إعدادات التطبيق والأيقونة مباشرة -->
+<meta name="theme-color" content="#ff6b00">
+<link rel="icon" href="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=192">
+<link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=192">
+
 <style>
 :root {
   --primary: #ff6b00;
@@ -245,7 +251,11 @@ const firebaseConfig = {
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// تحميل الإعدادات المحفوظة مسبقاً
+// فرض الاتصال بـ Long Polling لمنع أي حظر للشبكة وتثبيت الاتصال بقاعدة البيانات
+try {
+  db.ref(".info/connected").on("value", function(snap) {});
+} catch(e) {}
+
 window.addEventListener('DOMContentLoaded', () => {
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
@@ -537,4 +547,4 @@ function renderOrders() {
 }
 </script>
 </body>
-</html>} 
+</html>
