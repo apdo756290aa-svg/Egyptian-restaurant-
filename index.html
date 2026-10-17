@@ -126,8 +126,27 @@ body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70
 }
 </style>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<!-- إدراج مكتبات فايربيس Firestore مع المفتاح الجديد المطلوب -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, doc, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "sb_publishable_GOohTFjLF2Cjm70fLTrayA_vUlhd06f",
+    authDomain: "apdowebsite-99ed7.firebaseapp.com",
+    projectId: "apdowebsite-99ed7",
+    storageBucket: "apdowebsite-99ed7.appspot.com",
+    messagingSenderId: "389953119105",
+    appId: "1:389953119105:web:apdowebsite"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window.db = db;
+  window.FirestoreSDK = { collection, doc, onSnapshot, addDoc };
+  
+  window.dispatchEvent(new Event('firebase-ready'));
+</script>
 </head>
 <body>
 
@@ -244,17 +263,7 @@ body { background: var(--bg-color); color: var(--text-color); padding-bottom: 70
 </div>
 
 <script>
-const firebaseConfig = {
-  databaseURL: "https://apdowebsite-99ed7-default-rtdb.europe-west1.firebasedatabase.app/"
-};
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// إجبار الاتصال عبر الـ Long Polling لضمان عمل قاعدة البيانات بسلاسة ومنع أي تعليق
-try {
-  db.goOffline();
-  db.goOnline();
-} catch(e) {}
+let allItems = [], cart = {}, restaurantPhone = "201148041323", isStoreOpen = true, prevStatus = {};
 
 window.addEventListener('DOMContentLoaded', () => {
   const savedTheme = localStorage.getItem('theme') || 'light';
@@ -277,14 +286,35 @@ function changeViewStyle(style) {
   renderMenuPages();
 }
 
-db.ref('settings/storeName').on('value', snap => {
-  const storeName = snap.val() || 'المطعم المصري';
-  const nameEl = document.getElementById('customerStoreName');
-  if (nameEl) nameEl.innerText = storeName;
-  document.title = storeName;
-});
+window.addEventListener('firebase-ready', () => {
+  const db = window.db;
+  const { doc, onSnapshot, collection } = window.FirestoreSDK;
 
-let allItems = [], cart = {}, restaurantPhone = "201148041323", isStoreOpen = true, prevStatus = {};
+  onSnapshot(doc(db, "settings", "store"), (docSnap) => {
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      const storeName = data.storeName || 'المطعم المصري';
+      const nameEl = document.getElementById('customerStoreName');
+      if (nameEl) nameEl.innerText = storeName;
+      document.title = storeName;
+      if(data.wa) restaurantPhone = data.wa;
+      if(data.isOpen !== undefined) {
+        isStoreOpen = data.isOpen;
+        document.getElementById('closedBanner').style.display = isStoreOpen ? 'none' : 'block';
+        const btn = document.getElementById('orderBtn');
+        if(btn) { btn.disabled = !isStoreOpen; btn.style.background = isStoreOpen ? '#25D366' : '#ccc'; }
+      }
+    }
+  });
+
+  onSnapshot(collection(db, "menu"), (snapshot) => {
+    allItems = [];
+    snapshot.forEach((doc) => {
+      allItems.push(doc.data());
+    });
+    renderMenuPages();
+  });
+});
 
 function showPage(p) {
   document.querySelectorAll('.page').forEach(e => e.classList.remove('active'));
@@ -294,21 +324,6 @@ function showPage(p) {
   if(p === 'orders') renderOrders();
   window.scrollTo(0, 0);
 }
-
-db.ref('settings/isOpen').on('value', snap => {
-  isStoreOpen = snap.exists() ? snap.val() : true;
-  document.getElementById('closedBanner').style.display = isStoreOpen ? 'none' : 'block';
-  const btn = document.getElementById('orderBtn');
-  if(btn) { btn.disabled = !isStoreOpen; btn.style.background = isStoreOpen ? '#25D366' : '#ccc'; }
-});
-
-db.ref('menu').on('value', snap => {
-  const d = snap.val();
-  allItems = d ? (Array.isArray(d) ? d.filter(x=>x) : Object.values(d)) : [];
-  renderMenuPages();
-});
-
-db.ref('settings/wa').on('value', snap => { if(snap.exists()) restaurantPhone = snap.val(); });
 
 function cardHTML(it, idx) {
   const name = it.name || 'صنف', img = it.img || 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400';
@@ -332,7 +347,7 @@ function renderMenuPages(list = allItems) {
   const gridClass = viewStyle === 'list' ? 'menu-grid list-view' : 'menu-grid';
 
   if(homeEl) homeEl.className = gridClass;
-  if(homeEl) homeEl.innerHTML = list.map((it, i) => cardHTML(it, i)).join('') || '<p style="grid-column:span 2; text-align:center;">لا توجد نتائج</p>';
+  if(homeEl) homeEl.innerHTML = list.map((it, i) => cardHTML(it, i)).join('') || '<p style="grid-column:span 2; text-align:center;">لا توجد أصناف متاحة حالياً</p>';
 
   let fullHTML = "";
   const categories = ["طواجن ورئيسي", "أكلات بحرية", "مشويات", "مقبلات", "حلويات", "مشروبات ساخنة", "مشروبات ساقعة"];
@@ -487,7 +502,7 @@ function getMyLocation() {
   );
 }
 
-function orderWhats() {
+async function orderWhats() {
   if(!isStoreOpen) return alert("المحل مغلق حالياً");
   const keys = Object.keys(cart);
   if(keys.length === 0) return alert("السلة فارغة!");
@@ -509,9 +524,14 @@ function orderWhats() {
   if(user.building) msg += `\n🏢 *تفاصيل العمارة:* ${user.building}`;
   if(user.geoLink) msg += `\n🗺️ *موقع الخريطة (GPS):* ${user.geoLink}`;
 
-  db.ref('orders').push({
-    customer: user, items: cart, notes, total: tot, status: "قيد الانتظار ⏳", date: new Date().toLocaleString('ar-EG'), timestamp: Date.now()
-  });
+  try {
+    const { collection, addDoc } = window.FirestoreSDK;
+    await addDoc(collection(window.db, "orders"), {
+      customer: user, items: cart, notes, total: tot, status: "قيد الانتظار ⏳", date: new Date().toLocaleString('ar-EG'), timestamp: Date.now()
+    });
+  } catch(err) {
+    console.log("خطأ في حفظ الطلب بالقاعدة ولكن سيتم الإرسال عبر واتساب");
+  }
 
   window.open(`https://wa.me/${restaurantPhone}?text=${encodeURIComponent(msg)}`, '_blank');
   cart = {}; updateCartUI(); showPage('orders');
@@ -523,20 +543,23 @@ function renderOrders() {
     document.getElementById('ordersList').innerHTML = "<p style='text-align:center;'>ادخل رقمك الصحيح في صفحة حسابي لعرض طلباتك</p>";
     return;
   }
-  db.ref('orders').on('value', snap => {
-    const data = snap.val() || {};
+  
+  const { collection, onSnapshot } = window.FirestoreSDK;
+  onSnapshot(collection(window.db, "orders"), (snapshot) => {
     let html = "";
-    Object.keys(data).reverse().forEach(k => {
-      const ord = data[k];
+    let ordersList = [];
+    snapshot.forEach((doc) => {
+      ordersList.push({id: doc.id, ...doc.data()});
+    });
+    
+    ordersList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+    ordersList.forEach(ord => {
       if(ord.customer?.phone === user.phone) {
-        if(prevStatus[k] && prevStatus[k] !== ord.status) {
-          new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(()=>{});
-        }
-        prevStatus[k] = ord.status;
         let itemsTxt = "";
         if(ord.items) Object.entries(ord.items).forEach(([n, d]) => itemsTxt += `• ${n} × ${d.quantity}<br>`);
         html += `<div class="order-card">
-          <div style="display:flex; justify-content:space-between;"><b>طلب #${k.slice(-4)}</b><b style="color:var(--primary)">${ord.status}</b></div>
+          <div style="display:flex; justify-content:space-between;"><b>طلب #${ord.id.slice(-4)}</b><b style="color:var(--primary)">${ord.status}</b></div>
           <small>📅 ${ord.date}</small><br><br><div>${itemsTxt}</div>
           <b>الإجمالي: ${ord.total} جنيه</b>
         </div>`;
