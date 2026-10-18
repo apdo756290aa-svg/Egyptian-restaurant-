@@ -342,13 +342,11 @@
           <div class="bg-white/5 rounded-xl p-3 border border-white/10 text-xs space-y-2 text-right">
             <p class="flex items-center gap-2">
               <i class="fa-solid fa-code text-brand-500"></i>
-              <span><b>فريق التطوير:</b> عبد 
-الرحمن السيد محمود حسن علي عبد الحليم</span>
- ومحمود عماد محمد مبروك           
- </p>
+              <span><b>المطور والمصمم:</b> عبد الرحمن السيد محمود حسن علي عبد الحليم</span>
+            </p>
             <p class="flex items-center gap-2">
               <i class="fa-solid fa-headset text-amber-400"></i>
-             
+              <span><b>المساعد الفني:</b> محمود عماد محمد مبروك</span>
             </p>
           </div>
 
@@ -357,7 +355,7 @@
               <i class="fa-solid fa-phone"></i>
               <span>التواصل الفني: 01148041323</span>
             </a>
-          </div>
+</div>
         </div>
       </div>
     </section>
@@ -400,14 +398,18 @@
   </nav>
 
   <!-- Supabase JS Client SDK -->
+  <script src="https://cdn.jsdelivr.50m.cn/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.50m.cn/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-    // تهيئة عميل Supabase باستخدام المفتاح والـ URL الخاص بك
-    const SUPABASE_URL = "https://apdowebsite-99ed7.supabase.co"; // استبدلها بالرابط الخاص بمشروعك إن وجد، أو تم الربط بالرابط الافتراضي
-    const SUPABASE_ANON_KEY = "sb_publishable_GOohTFjLF2Cjm70fLTrayA_vUlhd06f";
+    // ----------------------------------------------------
+    // ضع هنا رابط سوبابيز الصحيح والـ Anon Key اللي بيبدأ بـ eyJ...
+    // ----------------------------------------------------
+    const SUPABASE_URL = "https://ضع_رابط_المشروع_هنا.supabase.co"; 
+    const SUPABASE_ANON_KEY = "ضع_مفتاح_الـ_anon_اللي_بيبدا_بـ_eyJ_هنا";
     
-    // Fallback القائمة الافتراضية في حالة عدم الاتصال المباشر بالجدول
+    // القائمة الاحتياطية تظهر في حال جلب بيانات فارغة أو حدوث خطأ مؤقت
     const defaultMenu = [
       { name: "طاجن لحم بالبطاطس", category: "طواجن ورئيسي", price: 120 },
       { name: "طاجن مكرونة بالبشاميل", category: "طواجن ورئيسي", price: 90 },
@@ -442,14 +444,15 @@
     let supabaseClient = null;
 
     window.addEventListener('DOMContentLoaded', async () => {
-      // محاولة إنشاء اتصال Supabase
       try {
-        if (window.supabase) {
+        if (window.supabase && SUPABASE_URL.includes("supabase.co") && SUPABASE_ANON_KEY.startsWith("eyJ")) {
           supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
           await fetchMenuFromSupabase();
+        } else {
+          console.log("يرجى إدخال رابط Supabase الصحيح و الـ Anon Key الذي يبدأ بـ eyJ في الكود");
         }
       } catch (e) {
-        console.log("الاعتماد على القائمة المحلية الافتراضية");
+        console.log("الاعتماد على القائمة المحلية الافتراضية نظرا لخطأ في الاتصال:", e);
       }
 
       setTimeout(() => {
@@ -473,11 +476,16 @@
       if (!supabaseClient) return;
       try {
         const { data, error } = await supabaseClient.from('menu').select('*');
+        if (error) {
+          console.error("خطأ في جلب البيانات من سوبابيز (تأكد من فتح صلاحيات RLS):", error.message);
+          return;
+        }
         if (data && data.length > 0) {
           allItems = data;
+          console.log("تم بنجاح جلب المنيو من قاعدة البيانات السحابية!");
         }
       } catch (err) {
-        console.log("خطأ في جلب بيانات المنيو من قاعدة البيانات السحابية");
+        console.log("خطأ استثنائي أثناء جلب المنيو:", err);
       }
     }
 
@@ -609,11 +617,7 @@
       if (!container) return;
 
       container.innerHTML = categories.map(cat => `
-        <button onclick="filterCategoryPill('${cat}', this)" class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition border ${
-          cat === currentSelectedCategory 
-            ? 'bg-brand-500 text-white border-brand-500 shadow-sm' 
-            : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-700'
-        }">${cat}</button>
+        <button onclick="filterCategoryPill('${cat}', this)" class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition border ${ cat === currentSelectedCategory ? 'bg-brand-500 text-white border-brand-500 shadow-sm' : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-700' }">${cat}</button>
       `).join('');
     }
 
@@ -627,7 +631,7 @@
       const isFav = favorites.includes(it.name);
       if (currentViewStyle === 'list') {
         return `
-    <div class="col-span-full bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-slate-700/60 shadow-sm flex items-center p-4 gap-3 transition transform hover:-translate-y-0.5">
+          <div class="col-span-full bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-slate-700/60 shadow-sm flex items-center p-4 gap-3 transition transform hover:-translate-y-0.5">
             <div class="flex-grow flex flex-col justify-between py-0.5">
               <div>
                 <div class="flex justify-between items-start">
@@ -825,7 +829,7 @@
       msg += `\n*تفاصيل الطلب:*\n`;
       
       itemsList.forEach(i => {
-        msg += `• ${i.name} x${i.qty} = ${i.price} ج\n`;
+        msg += `• ${i.name} x${i.qty} =${i.price} ج\n`;
       });
 
       msg += `\n• مجموع الأصناف: ${subTotal} جنيه\n`;
@@ -841,14 +845,13 @@
         total: finalTotal
       };
 
-      // حفظ الطلب في قاعدة البيانات Supabase إذا كانت متاحة، أو محلياً
       if (supabaseClient) {
         try {
           await supabaseClient.from('orders').insert([
             { customer_name: name, phone: phone, address: address, items: itemsList, total: finalTotal, notes: notes }
           ]);
         } catch (e) {
-          console.log("تعذر الحفظ في سرفر سوبابيس، تم الاعتماد على الإرسال الفوري");
+          console.log("تعذر الحفظ في قاعدة البيانات السحابية، تم الاعتماد على الإرسال الفوري للواتساب");
         }
       }
 
@@ -878,7 +881,7 @@
         <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border-r-4 border-r-brand-500 border border-gray-100 dark:border-slate-700/60 shadow-sm space-y-2">
           <div class="flex justify-between items-center text-xs">
             <span class="font-bold">طلب رقم #${ord.id}</span>
-            <span class="text-gray-400">${ord.date} - ${ord.time}</span>
+            <span class="text-gray-400">${ord.date} -${ord.time}</span>
           </div>
           <div class="text-xs space-y-1 py-1 border-t border-b border-gray-100 dark:border-slate-700">
             ${ord.items.map(i => `<div class="flex justify-between"><span>• ${i.name} (x${i.qty})</span> <span class="font-bold">${i.price} ج</span></div>`).join('')}
@@ -896,7 +899,7 @@
         name: document.getElementById('nameInput').value.trim(),
         phone: document.getElementById('phoneInput').value.trim(),
         address: document.getElementById('addressInput').value.trim(),
-        building: document.getElementById('buildingInput').value.trim()
+        building: document.getElementById('buildingInput5`]?.value.trim() || document.getElementById('buildingInput').value.trim()
       };
       
       if (!userData.name || !userData.phone || !userData.address) {
