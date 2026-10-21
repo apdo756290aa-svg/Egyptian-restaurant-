@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title id="pageTitle">المطعم المصري</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts (Cairo) -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
   
   <script>
@@ -38,9 +41,9 @@
 </head>
 <body class="bg-gray-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-300 min-h-screen pb-24">
 
-  <!-- Loading Screen (مضمون إخفاؤها فوراً) -->
+  <!-- Loading Screen -->
   <div id="loadingScreen" class="fixed inset-0 z-50 bg-brand-500 flex flex-col items-center justify-center text-white transition-opacity duration-300">
-    <div class="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mb-3"></div>
+    <img id="loadingLogo" src="https://raw.githubusercontent.com/apdo756290aa-svg/Egyptian-restaurant-/main/1000169442.jpg" class="w-16 h-16 rounded-2xl object-cover mb-3 shadow-2xl border-2 border-white/50" alt="Logo">
     <h2 id="loadingStoreName" class="text-xl font-black">المطعم المصري</h2>
     <p class="text-xs text-orange-100 mt-1">أهلاً بك...</p>
   </div>
@@ -339,7 +342,12 @@
   <!-- Navigation Bar Bottom -->
   <nav class="fixed bottom-0 inset-x-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border-t border-gray-200 dark:border-slate-700/80 z-30 py-2">
     <div class="max-w-md mx-auto flex justify-around items-center">
-     <button onclick="showPage('menu')" id="nav-menu" class="nav-item flex flex-col items-center gap-1 text-gray-400 dark:text-gray-400 text-[11px] font-bold transition">
+      <button onclick="showPage('home')" id="nav-home" class="nav-item active flex flex-col items-center gap-1 text-gray-400 dark:text-gray-400 text-[11px] font-bold transition">
+        <i class="fa-solid fa-house text-lg"></i>
+        <span>الرئيسية</span>
+      </button>
+
+      <button onclick="showPage('menu')" id="nav-menu" class="nav-item flex flex-col items-center gap-1 text-gray-400 dark:text-gray-400 text-[11px] font-bold transition">
         <i class="fa-solid fa-utensils text-lg"></i>
         <span>المنيو</span>
       </button>
@@ -392,7 +400,6 @@
 
     let supabaseClient = null;
 
-    // إلغاء شاشة التحميل فوراً وبدون أي إبطاء
     function hideLoader() {
       const loading = document.getElementById('loadingScreen');
       if (loading) {
@@ -402,11 +409,10 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
-      // إخفاء التحميل تلقائياً بعد ثانية واحدة بالظبط حتى لا يعلق المستخدِم
       setTimeout(() => {
         hideLoader();
         checkAuthStatus();
-      }, 1000);
+      }, 800);
 
       try {
         if (window.supabase) {
@@ -438,9 +444,10 @@
             document.getElementById('bannerStoreName').innerText = "أهلاً بك في " + data.store_name;
             document.getElementById('pageTitle').innerText = data.store_name;
           }
-          if (data.logo_url) {
+          if (data.logo_url && data.logo_url.trim() !== '') {
             document.getElementById('headerLogo').src = data.logo_url;
             document.getElementById('authLogo').src = data.logo_url;
+            document.getElementById('loadingLogo').src = data.logo_url;
           }
         }
       } catch (e) {}
@@ -520,7 +527,7 @@
 
       if (!name || !phone || !address) {
         showToast('يرجى ملء الحقول الأساسية', '⚠️');
-return;
+        return;
       }
 
       const userData = { name, phone, address, building };
@@ -742,7 +749,7 @@ return;
     }
 
     function updateCartUI() {
-let count = 0, subTotal = 0, html = "";
+      let count = 0, subTotal = 0, html = "";
       Object.keys(cart).forEach(k => {
         count += cart[k].quantity;
         subTotal += cart[k].price * cart[k].quantity;
