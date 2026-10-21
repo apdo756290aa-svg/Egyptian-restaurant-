@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>المطعم المصري - Egyptian Restaurant</title>
+  <title id="pageTitle">المطعم المصري - Egyptian Restaurant</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Icons -->
@@ -38,13 +38,8 @@
       font-family: 'Cairo', sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
-    .hide-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .hide-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .glass-effect {
       background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(12px);
@@ -61,26 +56,24 @@
 
   <!-- Loading Screen -->
   <div id="loadingScreen" class="fixed inset-0 z-50 bg-brand-500 flex flex-col items-center justify-center text-white transition-opacity duration-500">
-    <div class="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mb-4"></div>
-    <h2 class="text-xl font-black">المطعم المصري</h2>
-    <p class="text-xs text-orange-100 mt-1">جاري تحميل الموقع، أهلاً بك...</p>
+    <img id="loadingLogo" src="https://i.ibb.co/hR4yYpx/logo.jpg" class="w-20 h-20 rounded-2xl object-cover border-2 border-white/50 mb-3 shadow-2xl animate-pulse" alt="Logo">
+    <h2 id="loadingStoreName" class="text-xl font-black">المطعم المصري</h2>
+    <p class="text-xs text-orange-100 mt-1">جاري تحميل المنيو، أهلاً بك...</p>
   </div>
 
-  <!-- Auth / Registration Overlay -->
+  <!-- Auth Overlay -->
   <div id="authModal" class="hidden fixed inset-0 z-40 bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl border border-gray-100 dark:border-slate-700 space-y-4">
       <div class="text-center space-y-1">
-        <div class="w-12 h-12 bg-brand-500/10 text-brand-500 rounded-full flex items-center justify-center mx-auto text-xl mb-2">
-          <i class="fa-solid fa-utensils"></i>
-        </div>
-        <h3 class="font-extrabold text-lg">أهلاً بك في المطعم المصري</h3>
+        <img id="authLogo" src="https://i.ibb.co/hR4yYpx/logo.jpg" class="w-14 h-14 rounded-2xl object-cover mx-auto mb-2 border border-brand-500/30" alt="Logo">
+        <h3 id="authStoreName" class="font-extrabold text-lg">أهلاً بك في المطعم المصري</h3>
         <p class="text-xs text-gray-400">يرجى إدخال بياناتك للبدء في تصفح المنيو والطلب</p>
       </div>
 
       <div class="space-y-3 pt-2">
         <div>
-          <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">الاسم بالكامل (رباعي)</label>
-          <input id="authName" type="text" placeholder="مثال: أحمد محمد علي حسن" class="w-full p-3 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+          <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">الاسم بالكامل</label>
+          <input id="authName" type="text" placeholder="مثال: أحمد محمد علي" class="w-full p-3 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none">
         </div>
 
         <div>
@@ -94,7 +87,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">إضافة مواصفات أكثر للعنوان</label>
+          <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">تفاصيل أكثر للعنوان</label>
           <input id="authBuilding" type="text" placeholder="مثال: عمارة 12، الدور الرابع، شقة 8" class="w-full p-3 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none">
         </div>
 
@@ -112,7 +105,7 @@
     </div>
   </div>
 
-  <!-- Toast Notification Container -->
+  <!-- Toast Container -->
   <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 transform -translate-y-10 opacity-0 pointer-events-none transition-all duration-300 ease-out">
     <div class="glass-effect border border-brand-500/30 text-slate-900 dark:text-white px-5 py-3 rounded-full shadow-2xl flex items-center gap-3">
       <span id="toastIcon" class="text-xl">✨</span>
@@ -124,9 +117,7 @@
   <header class="sticky top-0 z-40 bg-brand-500 dark:bg-slate-800 text-white shadow-lg transition-colors">
     <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl shadow-inner">
-          🍲
-        </div>
+        <img id="headerLogo" src="https://i.ibb.co/hR4yYpx/logo.jpg" class="w-10 h-10 rounded-full object-cover border border-white/40 shadow-sm" alt="Logo">
         <div>
           <h1 id="customerStoreName" class="font-extrabold text-base sm:text-lg leading-tight">المطعم المصري</h1>
           <p class="text-[10px] text-orange-100 font-light">أصالة الطعم الفلاحي والبلدي</p>
@@ -155,7 +146,7 @@
     <section id="page-home" class="page-content space-y-5">
       <div class="relative rounded-2xl overflow-hidden p-6 bg-gradient-to-br from-brand-500 to-amber-600 shadow-xl text-white">
         <span class="bg-white/20 text-white text-[10px] font-bold px-3 py-1 rounded-full w-fit mb-2 inline-block">🔥 أشهى الأكلات الشرقية</span>
-        <h2 class="text-xl sm:text-2xl font-black mt-1">أهلاً بك في المطعم المصري</h2>
+        <h2 id="bannerStoreName" class="text-xl sm:text-2xl font-black mt-1">أهلاً بك في المطعم المصري</h2>
         <p class="text-xs text-orange-100 mt-1">تذوق طعم الأكل المصري الأصيل المطهو بحب وطزاجة يومياً</p>
       </div>
 
@@ -177,7 +168,7 @@
       <div id="homeMenu" class="grid grid-cols-2 sm:grid-cols-3 gap-3.5"></div>
     </section>
 
-    <!-- صفحة المنيو الكامل -->
+    <!-- المنيو الكامل -->
     <section id="page-menu" class="page-content hidden space-y-4">
       <div class="relative">
         <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -189,7 +180,7 @@
       <div id="fullMenuContainer" class="space-y-6"></div>
     </section>
 
-    <!-- صفحة المفضلة -->
+    <!-- المفضلة -->
     <section id="page-favorites" class="page-content hidden space-y-4">
       <h2 class="font-bold text-lg flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-3">
         <i class="fa-solid fa-heart text-rose-500"></i>
@@ -198,10 +189,10 @@
       <div id="favoritesContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-3.5"></div>
     </section>
 
-    <!-- صفحة السلة -->
+    <!-- السلة -->
     <section id="page-cart" class="page-content hidden space-y-4">
       <h2 class="font-bold text-lg flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-3">
-       <i class="fa-solid fa-cart-shopping text-brand-500"></i>
+        <i class="fa-solid fa-cart-shopping text-brand-500"></i>
         <span>سلة الطلبات</span>
       </h2>
 
@@ -241,7 +232,7 @@
       </div>
     </section>
 
-    <!-- صفحة حسابي -->
+    <!-- حسابي -->
     <section id="page-account" class="page-content hidden space-y-4">
       <h2 class="font-bold text-lg flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-3">
         <i class="fa-solid fa-user text-brand-500"></i>
@@ -290,7 +281,7 @@
       </div>
     </section>
 
-    <!-- صفحة طلباتي -->
+    <!-- طلباتي -->
     <section id="page-orders" class="page-content hidden space-y-4">
       <h2 class="font-bold text-lg flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-3">
         <i class="fa-solid fa-clock-rotate-left text-brand-500"></i>
@@ -300,7 +291,7 @@
       <div id="ordersList" class="space-y-3"></div>
     </section>
 
-    <!-- صفحة الإعدادات -->
+    <!-- الإعدادات -->
     <section id="page-settings" class="page-content hidden space-y-5">
       <h2 class="font-bold text-lg flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-3">
         <i class="fa-solid fa-gear text-brand-500"></i>
@@ -366,7 +357,7 @@
     <div class="max-w-md mx-auto flex justify-around items-center">
       <button onclick="showPage('home')" id="nav-home" class="nav-item active flex flex-col items-center gap-1 text-gray-400 dark:text-gray-400 text-[11px] font-bold transition">
         <i class="fa-solid fa-house text-lg"></i>
-<span>الرئيسية</span>
+        <span>الرئيسية</span>
       </button>
 
       <button onclick="showPage('menu')" id="nav-menu" class="nav-item flex flex-col items-center gap-1 text-gray-400 dark:text-gray-400 text-[11px] font-bold transition">
@@ -396,8 +387,7 @@
     </div>
   </nav>
 
-  <!-- Supabase JS Client SDK -->
-  <script src="https://cdn.jsdelivr.50m.cn/@supabase/supabase-js@2"></script>
+  <!-- Supabase Client SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
@@ -405,18 +395,12 @@
     const SUPABASE_ANON_KEY = "sb_publishable_GOohTFjLF2Cjm70fLTrayA_vUlhd06f";
     
     const defaultMenu = [
-      { name: "طاجن لحم بالبطاطس", category: "طواجن ورئيسي", price: 120, img: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500" },
-      { name: "طاجن مكرونة بالبشاميل", category: "طواجن ورئيسي", price: 90, img: "https://images.unsplash.com/photo-1621996346565-e3d5d6281288?w=500" },
-      { name: "طاجن تورلي باللحمة", category: "طواجن ورئيسي", price: 110, img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500" },
-      { name: "طاجن باميه باللحمة الضاني", category: "طواجن ورئيسي", price: 135, img: "https://images.unsplash.com/photo-1574484284002-952d92456975?w=500" },
-      { name: "حواشي مصري بلدي", category: "طواجن ورئيسي", price: 65, img: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=500" },
-      { name: "كشري مصري ملك الخدمات", category: "طواجن ورئيسي", price: 55, img: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=500" },
-      { name: "وجبة سمك مشوي بالليه", category: "أكلات بحرية", price: 160, img: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=500" },
-      { name: "جمبري مقلي مقرمش", category: "أكلات بحرية", price: 210, img: "https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=500" },
-      { name: "كيلو كفته مشوية", category: "مشويات", price: 382, img: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=500" },
-      { name: "نصف فرخة مشوية", category: "مشويات", price: 120, img: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=500" },
-      { name: "أم علي بالمكسرات القشطة", category: "حلويات", price: 65, img: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=500" },
-      { name: "عصير مانجو فريش", category: "مشروبات ساقعة", price: 40, img: "https://images.unsplash.com/photo-1546173159-315724a31696?w=500" }
+      { name: "طاجن لحم بالبطاطس", category: "طواجن ورئيسي", price: 120, img: "https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=60", available: true },
+      { name: "طاجن مكرونة بالبشاميل", category: "طواجن ورئيسي", price: 90, img: "https://images.unsplash.com/photo-1621996346565-e3d5d6281288?w=300&q=60", available: true },
+      { name: "طاجن تورلي باللحمة", category: "طواجن ورئيسي", price: 110, img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&q=60", available: true },
+      { name: "طاجن باميه باللحمة الضاني", category: "طواجن ورئيسي", price: 135, img: "https://images.unsplash.com/photo-1574484284002-952d92456975?w=300&q=60", available: true },
+      { name: "حواشي مصري بلدي", category: "طواجن ورئيسي", price: 65, img: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300&q=60", available: true },
+      { name: "كشري مصري ملك الخدمات", category: "طواجن ورئيسي", price: 55, img: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=300&q=60", available: true }
     ];
 
     let allItems = defaultMenu;
@@ -430,14 +414,24 @@
 
     let supabaseClient = null;
 
+    // تقليل جودة وحجم رابط الصورة لتفتح بسرعة فائقة
+    function compressImageUrl(url) {
+      if (!url) return 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=300&q=60';
+      if (url.includes('unsplash.com')) {
+        return url.replace(/w=\d+/, 'w=300').concat('&q=60');
+      }
+      return url;
+    }
+
     window.addEventListener('DOMContentLoaded', async () => {
       try {
         if (window.supabase) {
           supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          await fetchSettingsFromSupabase();
           await fetchMenuFromSupabase();
         }
       } catch (e) {
-        console.log("الاعتماد على القائمة المحلية");
+        console.log("الاعتماد على البيانات المحلية");
       }
 
       setTimeout(() => {
@@ -447,7 +441,7 @@
           setTimeout(() => loading.remove(), 500);
         }
         checkAuthStatus();
-      }, 1000);
+      }, 800);
 
       initTheme();
       renderCategoryPills();
@@ -457,12 +451,37 @@
       updateCartUI();
     });
 
+    async function fetchSettingsFromSupabase() {
+      if (!supabaseClient) return;
+      try {
+        const { data, error } = await supabaseClient.from('settings').select('*').eq('id', 1).single();
+        if (data) {
+          if (data.store_name) {
+            document.getElementById('customerStoreName').innerText = data.store_name;
+            document.getElementById('loadingStoreName').innerText = data.store_name;
+            document.getElementById('authStoreName').innerText = "أهلاً بك في " + data.store_name;
+            document.getElementById('bannerStoreName').innerText = "أهلاً بك في " + data.store_name;
+            document.getElementById('pageTitle').innerText = data.store_name;
+          }
+          if (data.logo_url) {
+            document.getElementById('headerLogo').src = data.logo_url;
+            document.getElementById('loadingLogo').src = data.logo_url;
+            document.getElementById('authLogo').src = data.logo_url;
+          }
+        }
+      } catch (e) {}
+    }
+
     async function fetchMenuFromSupabase() {
       if (!supabaseClient) return;
       try {
         const { data, error } = await supabaseClient.from('menu').select('*');
         if (data && data.length > 0) {
-          allItems = data;
+          allItems = data.map(item => ({
+            ...item,
+available: item.available !== false,
+            img: compressImageUrl(item.img)
+          }));
         }
       } catch (err) {
         console.log("خطأ في جلب بيانات المنيو من سوبابيز");
@@ -599,12 +618,16 @@
 
     function createCardHTML(it, idx) {
       const isFav = favorites.includes(it.name);
-      const imgSrc = it.img || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500';
+      const imgSrc = compressImageUrl(it.img);
+      const isAvailable = it.available !== false;
 
       if (currentViewStyle === 'list') {
         return `
-          <div class="col-span-full bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-slate-700/60 shadow-sm flex items-center p-3 gap-3 transition">
-            <img src="${imgSrc}" class="w-20 h-20 rounded-xl object-cover" alt="${it.name}">
+          <div class="col-span-full bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-slate-700/60 shadow-sm flex items-center p-3 gap-3 transition ${!isAvailable ? 'opacity-60 grayscale-[40%]' : ''}">
+            <div class="relative">
+              <img src="${imgSrc}" loading="lazy" class="w-20 h-20 rounded-xl object-cover" alt="${it.name}">
+              ${!isAvailable ? '<span class="absolute inset-0 bg-black/60 text-white text-[9px] font-bold flex items-center justify-center rounded-xl">غير متوفر</span>' : ''}
+            </div>
             <div class="flex-grow flex flex-col justify-between py-0.5">
               <div>
                 <div class="flex justify-between items-start">
@@ -618,9 +641,13 @@
 
               <div class="mt-2 flex items-center justify-between">
                 <span class="text-base font-black text-brand-500">${it.price} ج</span>
-                <button onclick="addToCart('${it.name.replace(/'/g, "\\'")}', ${it.price})" class="bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition active:scale-95 shadow-sm flex items-center gap-1">
-                  <i class="fa-solid fa-plus text-[10px]"></i> إضافة
-                </button>
+                ${isAvailable ? `
+                  <button onclick="addToCart('${it.name.replace(/'/g, "\\'")}', ${it.price})" class="bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition active:scale-95 shadow-sm flex items-center gap-1">
+                    <i class="fa-solid fa-plus text-[10px]"></i> إضافة
+                  </button>
+                ` : `
+                  <span class="text-[11px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-950/40 px-2.5 py-1 rounded-lg">نفد كميته</span>
+                `}
               </div>
             </div>
           </div>
@@ -628,22 +655,27 @@
       }
 
       return `
-        <div class="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-slate-700/60 shadow-sm flex flex-col justify-between transition transform hover:-translate-y-1">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-slate-700/60 shadow-sm flex flex-col justify-between transition transform hover:-translate-y-1 ${!isAvailable ? 'opacity-65' : ''}">
           <div class="relative h-32 bg-gray-100 dark:bg-slate-700">
-            <img src="${imgSrc}" class="w-full h-full object-cover" alt="${it.name}">
+            <img src="${imgSrc}" loading="lazy" class="w-full h-full object-cover" alt="${it.name}">
             <button onclick="toggleFavorite('${it.name.replace(/'/g, "\\'")}')" class="absolute top-2 left-2 w-8 h-8 rounded-full bg-white/80 dark:bg-slate-900/80 flex items-center justify-center shadow">
               <i class="fa-solid fa-heart ${isFav ? 'text-rose-500' : 'text-gray-400'}"></i>
             </button>
             <span class="absolute bottom-2 right-2 text-[9px] bg-black/60 text-white px-2 py-0.5 rounded-full">${it.category}</span>
+            ${!isAvailable ? '<div class="absolute inset-0 bg-slate-900/60 backdrop-blur-[1px] flex items-center justify-center text-white text-xs font-bold">غير متوفر حالياً</div>' : ''}
           </div>
 
           <div class="p-3.5 flex flex-col justify-between flex-grow">
             <h4 class="font-bold text-xs text-slate-800 dark:text-slate-100 line-clamp-1">${it.name}</h4>
             <div class="mt-3 pt-2 border-t border-gray-100 dark:border-slate-700/60 flex items-center justify-between">
               <span class="text-sm font-black text-brand-500">${it.price} ج</span>
-              <button onclick="addToCart('${it.name.replace(/'/g, "\\'")}', ${it.price})" class="bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition active:scale-95 shadow-sm">
-                <i class="fa-solid fa-plus"></i> إضافة
-              </button>
+              ${isAvailable ? `
+                <button onclick="addToCart('${it.name.replace(/'/g, "\\'")}', ${it.price})" class="bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition active:scale-95 shadow-sm">
+                  <i class="fa-solid fa-plus"></i> إضافة
+                </button>
+              ` : `
+                <span class="text-[10px] font-bold text-rose-500">منتهي</span>
+              `}
             </div>
           </div>
         </div>
@@ -651,7 +683,7 @@
     }
 
     function renderMenuPages(list = allItems) {
-      const homeEl = document.getElementById('homeMenu');
+const homeEl = document.getElementById('homeMenu');
       const fullEl = document.getElementById('fullMenuContainer');
 
       if (homeEl) {
@@ -793,7 +825,7 @@
 
       const finalTotal = subTotal + deliveryCost;
 
-      let msg = `*طلب جديد من المطعم المصري* 🍲\n\n`;
+      let msg = `*طلب جديد من ${document.getElementById('customerStoreName').innerText}* 🍲\n\n`;
       msg += `*بيانات العميل:*\n`;
       msg += `• الاسم: ${name}\n`;
       msg += `• الهاتف: ${phone}\n`;
@@ -917,7 +949,7 @@
 
     function shareApp() {
       if (navigator.share) {
-        navigator.share({ title: 'المطعم المصري', url: window.location.href });
+        navigator.share({ title: document.getElementById('customerStoreName').innerText, url: window.location.href });
       } else {
         showToast('رابط الموقع جاهز', '🔗');
       }
@@ -925,7 +957,7 @@
 
     function filterMenuHome() {
       const q = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = allItems.filter(i => i.name.toLowerCase().includes(q));
+const filtered = allItems.filter(i => i.name.toLowerCase().includes(q));
       document.getElementById('homeMenu').innerHTML = filtered.map((it, i) => createCardHTML(it, i)).join('');
     }
 
@@ -935,7 +967,5 @@
       renderMenuPages(filtered);
     }
   </script>
-<script>setTimeout(function(){var l=document.getElementById('loadingScreen');if(l){l.remove();}},1500);
-</script>
 </body>
 </html>
