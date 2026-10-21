@@ -54,9 +54,18 @@
 </head>
 <body class="bg-gray-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-300 min-h-screen pb-24">
 
+  <!-- SVG Logo Component (اللوجو الفخم كـ SVG مباشر لضمان الظهور 100%) -->
+  <template id="logoTemplate">
+    <div class="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center border border-amber-400/50 shadow-md">
+      <span class="font-black text-amber-400 text-xs tracking-tighter">AM</span>
+    </div>
+  </template>
+
   <!-- Loading Screen -->
   <div id="loadingScreen" class="fixed inset-0 z-50 bg-brand-500 flex flex-col items-center justify-center text-white transition-opacity duration-500">
-    <img id="loadingLogo" src="https://i.ibb.co/hR4yYpx/logo.jpg" class="w-20 h-20 rounded-2xl object-cover border-2 border-white/50 mb-3 shadow-2xl animate-pulse" alt="Logo">
+    <div class="w-16 h-16 rounded-2xl bg-slate-900 border-2 border-amber-400 flex items-center justify-center mb-3 shadow-2xl animate-pulse">
+      <span class="font-black text-amber-400 text-xl tracking-tighter">AM</span>
+    </div>
     <h2 id="loadingStoreName" class="text-xl font-black">المطعم المصري</h2>
     <p class="text-xs text-orange-100 mt-1">جاري تحميل المنيو، أهلاً بك...</p>
   </div>
@@ -65,7 +74,9 @@
   <div id="authModal" class="hidden fixed inset-0 z-40 bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl border border-gray-100 dark:border-slate-700 space-y-4">
       <div class="text-center space-y-1">
-        <img id="authLogo" src="https://i.ibb.co/hR4yYpx/logo.jpg" class="w-14 h-14 rounded-2xl object-cover mx-auto mb-2 border border-brand-500/30" alt="Logo">
+        <div class="w-14 h-14 rounded-2xl bg-slate-900 border-2 border-amber-400 flex items-center justify-center mx-auto mb-2 shadow-lg">
+          <span class="font-black text-amber-400 text-2xl tracking-tighter">AM</span>
+        </div>
         <h3 id="authStoreName" class="font-extrabold text-lg">أهلاً بك في المطعم المصري</h3>
         <p class="text-xs text-gray-400">يرجى إدخال بياناتك للبدء في تصفح المنيو والطلب</p>
       </div>
@@ -117,7 +128,9 @@
   <header class="sticky top-0 z-40 bg-brand-500 dark:bg-slate-800 text-white shadow-lg transition-colors">
     <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center gap-3">
-        <img id="headerLogo" src="https://i.ibb.co/hR4yYpx/logo.jpg" class="w-10 h-10 rounded-full object-cover border border-white/40 shadow-sm" alt="Logo">
+        <div id="headerLogoContainer" class="w-10 h-10 rounded-full bg-slate-900 border border-amber-400/60 flex items-center justify-center shadow-md">
+          <span class="font-black text-amber-400 text-xs tracking-tighter">AM</span>
+        </div>
         <div>
           <h1 id="customerStoreName" class="font-extrabold text-base sm:text-lg leading-tight">المطعم المصري</h1>
           <p class="text-[10px] text-orange-100 font-light">أصالة الطعم الفلاحي والبلدي</p>
@@ -142,7 +155,7 @@
 
   <main class="max-w-4xl mx-auto px-4 pt-4">
 
-    <!-- الصفحة الرئيسية -->
+    <!-- الرئيسية -->
     <section id="page-home" class="page-content space-y-5">
       <div class="relative rounded-2xl overflow-hidden p-6 bg-gradient-to-br from-brand-500 to-amber-600 shadow-xl text-white">
         <span class="bg-white/20 text-white text-[10px] font-bold px-3 py-1 rounded-full w-fit mb-2 inline-block">🔥 أشهى الأكلات الشرقية</span>
@@ -394,13 +407,14 @@
     const SUPABASE_URL = "https://nktadskksxbvgvxxtyoe.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_GOohTFjLF2Cjm70fLTrayA_vUlhd06f";
     
+    // صور سريعة ومضمونة جداً 100%
     const defaultMenu = [
-      { name: "طاجن لحم بالبطاطس", category: "طواجن ورئيسي", price: 120, img: "https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=60", available: true },
-      { name: "طاجن مكرونة بالبشاميل", category: "طواجن ورئيسي", price: 90, img: "https://images.unsplash.com/photo-1621996346565-e3d5d6281288?w=300&q=60", available: true },
-      { name: "طاجن تورلي باللحمة", category: "طواجن ورئيسي", price: 110, img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&q=60", available: true },
-      { name: "طاجن باميه باللحمة الضاني", category: "طواجن ورئيسي", price: 135, img: "https://images.unsplash.com/photo-1574484284002-952d92456975?w=300&q=60", available: true },
-      { name: "حواشي مصري بلدي", category: "طواجن ورئيسي", price: 65, img: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300&q=60", available: true },
-      { name: "كشري مصري ملك الخدمات", category: "طواجن ورئيسي", price: 55, img: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=300&q=60", available: true }
+      { name: "طاجن لحم بالبطاطس", category: "طواجن ورئيسي", price: 120, img: "https://picsum.photos/seed/meat1/300/200", available: true },
+      { name: "طاجن مكرونة بالبشاميل", category: "طواجن ورئيسي", price: 90, img: "https://picsum.photos/seed/pasta2/300/200", available: true },
+      { name: "طاجن تورلي باللحمة", category: "طواجن ورئيسي", price: 110, img: "https://picsum.photos/seed/stew3/300/200", available: true },
+      { name: "طاجن باميه باللحمة الضاني", category: "طواجن ورئيسي", price: 135, img: "https://picsum.photos/seed/okra4/300/200", available: true },
+      { name: "حواشي مصري بلدي", category: "طواجن ورئيسي", price: 65, img: "https://picsum.photos/seed/hawawshi5/300/200", available: true },
+      { name: "كشري مصري ملك الخدمات", category: "طواجن ورئيسي", price: 55, img: "https://picsum.photos/seed/koshary6/300/200", available: true }
     ];
 
     let allItems = defaultMenu;
@@ -413,15 +427,6 @@
     const deliveryCost = 20;
 
     let supabaseClient = null;
-
-    // تقليل جودة وحجم رابط الصورة لتفتح بسرعة فائقة
-    function compressImageUrl(url) {
-      if (!url) return 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=300&q=60';
-      if (url.includes('unsplash.com')) {
-        return url.replace(/w=\d+/, 'w=300').concat('&q=60');
-      }
-      return url;
-    }
 
     window.addEventListener('DOMContentLoaded', async () => {
       try {
@@ -455,19 +460,12 @@
       if (!supabaseClient) return;
       try {
         const { data, error } = await supabaseClient.from('settings').select('*').eq('id', 1).single();
-        if (data) {
-          if (data.store_name) {
-            document.getElementById('customerStoreName').innerText = data.store_name;
-            document.getElementById('loadingStoreName').innerText = data.store_name;
-            document.getElementById('authStoreName').innerText = "أهلاً بك في " + data.store_name;
-            document.getElementById('bannerStoreName').innerText = "أهلاً بك في " + data.store_name;
-            document.getElementById('pageTitle').innerText = data.store_name;
-          }
-          if (data.logo_url) {
-            document.getElementById('headerLogo').src = data.logo_url;
-            document.getElementById('loadingLogo').src = data.logo_url;
-            document.getElementById('authLogo').src = data.logo_url;
-          }
+        if (data && data.store_name) {
+          document.getElementById('customerStoreName').innerText = data.store_name;
+          document.getElementById('loadingStoreName').innerText = data.store_name;
+          document.getElementById('authStoreName').innerText = "أهلاً بك في " + data.store_name;
+          document.getElementById('bannerStoreName').innerText = "أهلاً بك في " + data.store_name;
+          document.getElementById('pageTitle').innerText = data.store_name;
         }
       } catch (e) {}
     }
@@ -477,10 +475,10 @@
       try {
         const { data, error } = await supabaseClient.from('menu').select('*');
         if (data && data.length > 0) {
-          allItems = data.map(item => ({
+          allItems = data.map((item, idx) => ({
             ...item,
-available: item.available !== false,
-            img: compressImageUrl(item.img)
+            available: item.available !== false,
+            img: item.img || `https://picsum.photos/seed/food${idx}/300/200`
           }));
         }
       } catch (err) {
@@ -509,8 +507,8 @@ available: item.available !== false,
           const lon = position.coords.longitude;
           const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
           try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ar`);
-            const data = await response.json();
+            const response = await fetch(`https://nominatim.openstreetmap.org
+const data = await response.json();
             if (data && data.address) {
               const road = data.address.road || data.address.suburb || data.address.city_district || '';
               const neighborhood = data.address.neighbourhood || data.address.city || '';
@@ -618,14 +616,14 @@ available: item.available !== false,
 
     function createCardHTML(it, idx) {
       const isFav = favorites.includes(it.name);
-      const imgSrc = compressImageUrl(it.img);
+      const imgSrc = it.img || `https://picsum.photos/seed/food${idx}/300/200`;
       const isAvailable = it.available !== false;
 
       if (currentViewStyle === 'list') {
         return `
           <div class="col-span-full bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-slate-700/60 shadow-sm flex items-center p-3 gap-3 transition ${!isAvailable ? 'opacity-60 grayscale-[40%]' : ''}">
-            <div class="relative">
-              <img src="${imgSrc}" loading="lazy" class="w-20 h-20 rounded-xl object-cover" alt="${it.name}">
+            <div class="relative flex-shrink-0">
+              <img src="${imgSrc}" loading="lazy" class="w-20 h-20 rounded-xl object-cover bg-gray-200" alt="${it.name}">
               ${!isAvailable ? '<span class="absolute inset-0 bg-black/60 text-white text-[9px] font-bold flex items-center justify-center rounded-xl">غير متوفر</span>' : ''}
             </div>
             <div class="flex-grow flex flex-col justify-between py-0.5">
@@ -683,7 +681,7 @@ available: item.available !== false,
     }
 
     function renderMenuPages(list = allItems) {
-const homeEl = document.getElementById('homeMenu');
+      const homeEl = document.getElementById('homeMenu');
       const fullEl = document.getElementById('fullMenuContainer');
 
       if (homeEl) {
@@ -748,7 +746,7 @@ const homeEl = document.getElementById('homeMenu');
       }
       cart[name] = cart[name] ? { price, quantity: cart[name].quantity + 1 } : { price, quantity: 1 };
       updateCartUI();
-      showToast(`تمت إضافة ${name}`, '🛒');
+showToast(`تمت إضافة ${name}`, '🛒');
     }
 
     function changeQty(name, amt) {
@@ -957,7 +955,7 @@ const homeEl = document.getElementById('homeMenu');
 
     function filterMenuHome() {
       const q = document.getElementById('searchInput').value.toLowerCase();
-const filtered = allItems.filter(i => i.name.toLowerCase().includes(q));
+      const filtered = allItems.filter(i => i.name.toLowerCase().includes(q));
       document.getElementById('homeMenu').innerHTML = filtered.map((it, i) => createCardHTML(it, i)).join('');
     }
 
