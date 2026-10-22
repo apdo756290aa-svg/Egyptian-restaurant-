@@ -307,36 +307,37 @@
         </div>
       </div>
 
-      <!-- Developer Credits Card (مع اللوجو الجديد وتعديل الأسماء والأمان وزر الواتساب) -->
+      <!-- Developer Credits Card (دمج فريق التطوير محمود وعبد الرحمن مع اللوجو وزر الواتساب) -->
       <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl p-6 shadow-xl relative overflow-hidden border border-slate-700 space-y-4">
         <div class="absolute -left-10 -bottom-10 w-32 h-32 bg-brand-500/10 rounded-full blur-2xl"></div>
         
         <div class="text-center space-y-3 relative z-10">
           <img src="https://i.ibb.co/bjtKFtFx/IMG-20261022-WA7622.jpg" class="w-16 h-16 rounded-2xl object-cover mx-auto border-2 border-amber-400/50 shadow-lg" alt="Logo">
           
-          <span class="bg-brand-500/20 text-brand-500 border border-brand-500/30 text-[11px] font-bold px-3 py-1 rounded-full">فريق التطوير وراعي الأمان</span>
+          <span class="bg-brand-500/20 text-brand-500 border border-brand-500/30 text-[11px] font-bold px-3 py-1 rounded-full">فريق التطوير والبرمجة</span>
           
-          <h3 class="text-base font-extrabold text-white mt-2">تصميم وتطوير وحماية الموقع</h3>
+          <h3 class="text-base font-extrabold text-white mt-2">تصميم وتطوير الموقع</h3>
           
           <div class="bg-white/5 rounded-xl p-3 border border-white/10 text-xs space-y-2 text-right">
             <p class="flex items-center gap-2">
               <i class="fa-solid fa-code text-brand-500"></i>
-              <span><b>المطور والمصمم:</b> عبد الرحمن السيد محمود حسن علي عبد الحليم</span>
+              <span><b>مطور ومصمم:</b> عبد الرحمن السيد محمود حسن علي عبد الحليم</span>
             </p>
             <p class="flex items-center gap-2">
-              <i class="fa-solid fa-shield-halved text-emerald-400"></i>
-              <span><b>راعي الأمان وحماية الثغرات:</b> محمود عماد محمد مبروك</span>
+              <i class="fa-solid fa-code text-brand-500"></i>
+              <span><b>مطور ومصمم:</b> محمود عماد محمد مبروك</span>
             </p>
           </div>
 
           <div class="pt-2">
-            <a href="https://wa.me/201148041323?text=السلام%20عليكم،%20أريد%20التواصل%20مع%20فريق%20الدعم%20الفني" target="_blank" class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-xs transition shadow-lg w-full">
+            <a href="https://wa.me/201148041323?text=السلام%20عليكم،%20أريد%20التواصل%20مع%20فريق%20الدعم%20الفني" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-xs transition shadow-lg w-full">
               <i class="fa-brands fa-whatsapp text-lg"></i>
               <span>التواصل والدعم الفني عبر الواتساب</span>
             </a>
           </div>
         </div>
-       </div>
+      </div>
+    </div>
     </section>
 
   </main>
@@ -933,6 +934,12 @@
     }
 
     function filterMenuHome() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allItems.filter(i => i.name.toLowerCase().includes(q));
+      document.getElementById('homeMenu').innerHTML = filtered.map((it, i) => createCardHTML(it, i)).join('');
+    }
+
+    function filterMenuFull() {
       const q = document.getElementById('searchInput').value.toLowerCase();
       const filtered = allItems.filter(i => i.name.toLowerCase().includes(q));
       document.getElementById('homeMenu').innerHTML = filtered.map((it, i) => createCardHTML(it, i)).join('');
