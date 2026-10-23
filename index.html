@@ -48,7 +48,7 @@
     <p class="text-xs text-orange-100 mt-1">أهلاً بك...</p>
   </div>
 
-  <!-- Auth Overlay -->
+  <!-- Auth Overlay (شاشة تسجيل الدخول المعدلة) -->
   <div id="authModal" class="hidden fixed inset-0 z-40 bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl border border-gray-100 dark:border-slate-700 space-y-4">
       <div class="text-center space-y-1">
@@ -70,11 +70,11 @@
 
         <div>
           <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">العنوان</label>
-          <input id="authAddress" type="text" placeholder="اكتب عنوانك أو اضغط تحديد تلقائي" class="w-full p-3 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+          <input id="authAddress" type="text" placeholder="اكتب عنوانك التفصيلي" class="w-full p-3 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none">
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">تفاصيل أكثر للعنوان</label>
+          <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">تفاصيل أكثر للعنوان (اختياري)</label>
           <input id="authBuilding" type="text" placeholder="مثال: عمارة 12، الدور الرابع، شقة 8" class="w-full p-3 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none">
         </div>
 
@@ -85,7 +85,7 @@
           </button>
         </div>
 
-        <button onclick="submitAuth()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg text-xs transition active:scale-98 mt-2">
+        <button onclick="submitAuth()" type="button" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg text-xs transition active:scale-98 mt-2">
           تسجيل الدخول والبدء 🚀
         </button>
       </div>
@@ -314,7 +314,6 @@
         <div class="text-center space-y-3 relative z-10">
           <h3 class="text-base font-extrabold text-white">تصميم وتطوير الموقع</h3>
           
-          <!-- اللوجو أصبح هنا تحت كلمة تصميم وتطوير الموقع وقبل المطورين -->
           <img src="https://i.ibb.co/bjtKFtFx/IMG-20261022-WA7622.jpg" class="w-16 h-16 rounded-2xl object-cover mx-auto border-2 border-amber-400/50 shadow-lg my-2" alt="Logo">
           
           <div class="bg-white/5 rounded-xl p-3 border border-white/10 text-xs space-y-2 text-right">
@@ -341,7 +340,7 @@
   </main>
 
   <!-- Navigation Bar Bottom -->
-  <nav class="fixed bottom-0 inset-x-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border-t border-gray-200 dark:border-slate-700/80 z-30 py-2">
+<nav class="fixed bottom-0 inset-x-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border-t border-gray-200 dark:border-slate-700/80 z-30 py-2">
     <div class="max-w-md mx-auto flex justify-around items-center">
       <button onclick="showPage('home')" id="nav-home" class="nav-item active flex flex-col items-center gap-1 text-gray-400 dark:text-gray-400 text-[11px] font-bold transition">
         <i class="fa-solid fa-house text-lg"></i>
@@ -413,7 +412,7 @@
       setTimeout(() => {
         hideLoader();
         checkAuthStatus();
-      }, 800);
+      }, 500);
 
       try {
         if (window.supabase) {
@@ -432,6 +431,43 @@
       renderOrders();
       updateCartUI();
     });
+
+    // إصلاح دالة تسجيل الدخول
+    function submitAuth() {
+      const nameEl = document.getElementById('authName');
+      const phoneEl = document.getElementById('authPhone');
+      const addressEl = document.getElementById('authAddress');
+      const buildingEl = document.getElementById('authBuilding');
+
+      const name = nameEl ? nameEl.value.trim() : '';
+      const phone = phoneEl ? phoneEl.value.trim() : '';
+      const address = addressEl ? addressEl.value.trim() : '';
+      const building = buildingEl ? buildingEl.value.trim() : '';
+
+      if (!name || !phone || !address) {
+        showToast('يرجى كتابة الاسم والهاتف والعنوان', '⚠️');
+        return;
+      }
+
+      const userData = { name, phone, address, building };
+      localStorage.setItem('user_data', JSON.stringify(userData));
+
+      const modal = document.getElementById('authModal');
+      if (modal) modal.classList.add('hidden');
+
+      loadUserData();
+      showToast('مرحباً بك! تم حفظ البيانات بنجاح', '🎉');
+    }
+
+    function checkAuthStatus() {
+      const u = JSON.parse(localStorage.getItem('user_data') || '{}');
+      if (!u.name || !u.phone || !u.address) {
+        const modal = document.getElementById('authModal');
+        if (modal) modal.classList.remove('hidden');
+      } else {
+        loadUserData();
+      }
+    }
 
     async function fetchSettingsFromSupabase() {
       if (!supabaseClient) return;
@@ -461,15 +497,6 @@
         }
       } catch (err) {
         console.log("خطأ في جلب بيانات المنيو من سوبابيز");
-      }
-    }
-
-    function checkAuthStatus() {
-      const u = JSON.parse(localStorage.getItem('user_data') || '{}');
-      if (!u.name || !u.phone || !u.address) {
-        document.getElementById('authModal').classList.remove('hidden');
-      } else {
-        loadUserData();
       }
     }
 
@@ -504,30 +531,14 @@
           showToast("تم جلب الموقع بنجاح!", "📍");
         },
         (error) => {
-          showToast("تعذر تحديد الموقع، تأكد من تفعيل الـ GPS", "❌");
+          showToast("تعذر تحديد الموقع تلقائياً، يمكنك كتابته يدوياً", "⚠️");
         },
-        { enableHighAccuracy: true }
+        { enableHighAccuracy: true, timeout: 5000 }
       );
     }
 
     function getAuthLocation() { processGeolocation('authAddress'); }
     function getMyLocation() { processGeolocation('addressInput'); }
-
-    function submitAuth() {
-      const name = document.getElementById('authName').value.trim();
-      const building = document.getElementById('authBuilding').value.trim();
-
-      if (!name || !phone || !address) {
-        showToast('يرجى ملء الحقول الأساسية', '⚠️');
-        return;
-      }
-
-      const userData = { name, phone, address, building };
-      localStorage.setItem('user_data', JSON.stringify(userData));
-      document.getElementById('authModal').classList.add('hidden');
-      loadUserData();
-      showToast('مرحباً بك، تم تسجيل بياناتك بنجاح!', '🎉');
-    }
 
     function changeViewStyle(style) {
       currentViewStyle = style;
@@ -856,7 +867,15 @@
       container.innerHTML = orders.map(ord => `
         <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border-r-4 border-r-brand-500 border border-gray-100 dark:border-slate-700/60 shadow-sm space-y-2">
           <div class="flex justify-between items-center text-xs">
-              <span>${ord.total} جنيه</span>
+            <span class="font-bold">طلب رقم #${ord.id}</span>
+            <span class="text-gray-400">${ord.date} - ${ord.time}</span>
+          </div>
+          <div class="text-xs space-y-1 py-1 border-t border-b border-gray-100 dark:border-slate-700">
+            ${ord.items.map(i => `<div class="flex justify-between"><span>• ${i.name} (x${i.qty})</span> <span class="font-bold">${i.price} ج</span></div>`).join('')}
+          </div>
+          <div class="flex justify-between items-center font-bold text-brand-500 text-sm pt-1">
+            <span>الإجمالي:</span>
+            <span>${ord.total} جنيه</span>
           </div>
         </div>
       `).join('');
