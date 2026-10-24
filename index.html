@@ -48,7 +48,7 @@
     <p class="text-xs text-orange-100 mt-1">أهلاً بك...</p>
   </div>
 
-  <!-- Auth Overlay (شاشة تسجيل الدخول المعدلة) -->
+  <!-- Auth Overlay -->
   <div id="authModal" class="hidden fixed inset-0 z-40 bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl border border-gray-100 dark:border-slate-700 space-y-4">
       <div class="text-center space-y-1">
@@ -339,8 +339,8 @@
 
   </main>
 
-  <!-- Navigation Bar Bottom -->
-<nav class="fixed bottom-0 inset-x-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border-t border-gray-200 dark:border-slate-700/80 z-30 py-2">
+    <!-- Navigation Bar Bottom -->
+  <nav class="fixed bottom-0 inset-x-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border-t border-gray-200 dark:border-slate-700/80 z-30 py-2">
     <div class="max-w-md mx-auto flex justify-around items-center">
       <button onclick="showPage('home')" id="nav-home" class="nav-item active flex flex-col items-center gap-1 text-gray-400 dark:text-gray-400 text-[11px] font-bold transition">
         <i class="fa-solid fa-house text-lg"></i>
@@ -414,6 +414,12 @@
         checkAuthStatus();
       }, 500);
 
+      // Check store status from localStorage
+      const storeStatus = localStorage.getItem('store_is_open');
+      if (storeStatus === 'false') {
+        isStoreOpen = false;
+      }
+
       try {
         if (window.supabase) {
           supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -432,7 +438,7 @@
       updateCartUI();
     });
 
-    // إصلاح دالة تسجيل الدخول
+    // Validated login function with Egyptian phone check
     function submitAuth() {
       const nameEl = document.getElementById('authName');
       const phoneEl = document.getElementById('authPhone');
@@ -446,6 +452,13 @@
 
       if (!name || !phone || !address) {
         showToast('يرجى كتابة الاسم والهاتف والعنوان', '⚠️');
+        return;
+      }
+
+      // Validate Egyptian phone number (11 digits, starts with 010, 011, 012, 015)
+      const egyptianPhoneRegex = /^(010|011|012|015)\d{8}$/;
+      if (!egyptianPhoneRegex.test(phone)) {
+        showToast('رقم الهاتف غير صحيح! يجب أن يكون 11 رقماً ويبدأ بـ 010, 011, 012, أو 015', '❌');
         return;
       }
 
@@ -473,12 +486,21 @@
       if (!supabaseClient) return;
       try {
         const { data } = await supabaseClient.from('settings').select('*').eq('id', 1).single();
-        if (data && data.store_name) {
-          document.getElementById('customerStoreName').innerText = data.store_name;
-          document.getElementById('loadingStoreName').innerText = data.store_name;
-          document.getElementById('authStoreName').innerText = "أهلاً بك في " + data.store_name;
-          document.getElementById('bannerStoreName').innerText = "أهلاً بك في " + data.store_name;
-          document.getElementById('pageTitle').innerText = data.store_name;
+        if (data) {
+          if (data.store_name) {
+            document.getElementById('customerStoreName').innerText = data.store_name;
+            document.getElementById('loadingStoreName').innerText = data.store_name;
+            document.getElementById('authStoreName').innerText = "أهلاً بك في " + data.store_name;
+            document.getElementById('bannerStoreName').innerText = "أهلاً بك في " + data.store_name;
+            document.getElementById('pageTitle').innerText = data.store_name;
+          }
+          if (data.is_open === false) {
+            isStoreOpen = false;
+            localStorage.setItem('store_is_open', 'false');
+          } else if (data.is_open === true) {
+            isStoreOpen = true;
+            localStorage.setItem('store_is_open', 'true');
+          }
         }
       } catch (e) {}
     }
@@ -547,6 +569,15 @@
     }
 
     function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.getElementById('themeIcon').className = 'fa-solid fa-sun text-amber-300';
+      }
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
       const savedTheme = localStorage.getItem('theme') || 'light';
       if (savedTheme === 'dark') {
         document.documentElement.classList.add('dark');
@@ -728,7 +759,7 @@
 
     function addToCart(name, price) {
       if (!isStoreOpen) {
-        showToast('المطعم مغلق حالياً', '⚠️');
+        showToast('المطعم مغلق حالياً، لا يمكن إضافة طلبات', '⚠️');
         return;
       }
       cart[name] = cart[name] ? { price, quantity: cart[name].quantity + 1 } : { price, quantity: 1 };
@@ -782,6 +813,11 @@
     }
 
     async function orderWhats() {
+      if (!isStoreOpen) {
+        showToast('عذراً، المطعم مغلق حالياً ولا يمكن استقبال طلبات جديدة', '⚠️');
+        return;
+      }
+
       if (Object.keys(cart).length === 0) {
         showToast('السلة فارغة!', '🛒');
         return;
@@ -797,6 +833,12 @@
       if (!name || !phone || !address) {
         showToast('يرجى إكمال بيانات التوصيل', '⚠️');
         showPage('account');
+        return;
+      }
+
+      const egyptianPhoneRegex = /^(010|011|012|015)\d{8}$/;
+      if (!egyptianPhoneRegex.test(phone)) {
+        showToast('رقم الهاتف غير صحيح! يجب أن يتكون من 11 رقماً ويبدأ بـ 010, 011, 012, أو 015', '❌');
         return;
       }
 
@@ -882,18 +924,23 @@
     }
 
     function saveAccount() {
-      const userData = {
-        name: document.getElementById('nameInput').value.trim(),
-        phone: document.getElementById('phoneInput').value.trim(),
-        address: document.getElementById('addressInput').value.trim(),
-        building: document.getElementById('buildingInput').value.trim()
-      };
+      const name = document.getElementById('nameInput').value.trim();
+      const phone = document.getElementById('phoneInput').value.trim();
+      const address = document.getElementById('addressInput').value.trim();
+      const building = document.getElementById('buildingInput').value.trim();
       
-      if (!userData.name || !userData.phone || !userData.address) {
+      if (!name || !phone || !address) {
         showToast('يرجى ملء البيانات الأساسية', '⚠️');
         return;
       }
 
+      const egyptianPhoneRegex = /^(010|011|012|015)\d{8}$/;
+      if (!egyptianPhoneRegex.test(phone)) {
+        showToast('رقم الهاتف غير صحيح! يجب أن يتكون من 11 رقماً ويبدأ بـ 010, 011, 012, أو 015', '❌');
+        return;
+      }
+
+      const userData = { name, phone, address, building };
       localStorage.setItem('user_data', JSON.stringify(userData));
       showToast('تم حفظ البيانات بنجاح', '✅');
     }
