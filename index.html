@@ -339,7 +339,7 @@
 
   </main>
 
-    <!-- Navigation Bar Bottom -->
+  <!-- Navigation Bar Bottom -->
   <nav class="fixed bottom-0 inset-x-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border-t border-gray-200 dark:border-slate-700/80 z-30 py-2">
     <div class="max-w-md mx-auto flex justify-around items-center">
       <button onclick="showPage('home')" id="nav-home" class="nav-item active flex flex-col items-center gap-1 text-gray-400 dark:text-gray-400 text-[11px] font-bold transition">
@@ -414,7 +414,6 @@
         checkAuthStatus();
       }, 500);
 
-      // Check store status from localStorage
       const storeStatus = localStorage.getItem('store_is_open');
       if (storeStatus === 'false') {
         isStoreOpen = false;
@@ -423,8 +422,8 @@
       try {
         if (window.supabase) {
           supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-          fetchSettingsFromSupabase();
-          fetchMenuFromSupabase();
+          await fetchSettingsFromSupabase();
+          await fetchMenuFromSupabase();
         }
       } catch (e) {
         console.log("استخدام البيانات المحلية");
@@ -438,7 +437,6 @@
       updateCartUI();
     });
 
-    // Validated login function with Egyptian phone check
     function submitAuth() {
       const nameEl = document.getElementById('authName');
       const phoneEl = document.getElementById('authPhone');
@@ -455,10 +453,9 @@
         return;
       }
 
-      // Validate Egyptian phone number (11 digits, starts with 010, 011, 012, 015)
       const egyptianPhoneRegex = /^(010|011|012|015)\d{8}$/;
       if (!egyptianPhoneRegex.test(phone)) {
-        showToast('رقم الهاتف غير صحيح! يجب أن يكون 11 رقماً ويبدأ بـ 010, 011, 012, أو 015', '❌');
+        showToast('رقم الهاتف غير صحيح! يجب أن يتكون من 11 رقماً ويبدأ بـ 010, 011, 012, أو 015', '❌');
         return;
       }
 
@@ -467,6 +464,16 @@
 
       const modal = document.getElementById('authModal');
       if (modal) modal.classList.add('hidden');
+
+      loadUserData();
+      showToast('مرحباً بك! تم حفظ البيانات بنجاح', '🎉');
+    }
+
+    function checkAuthStatus() {
+      const u = JSON.parse(localStorage.getItem('user_data') || '{}');
+      if (!u.name || !u.phone || !u.address) {
+        const modal = document.getElementById('authModal');
+        if (modal) modal.classList.add('hidden');
 
       loadUserData();
       showToast('مرحباً بك! تم حفظ البيانات بنجاح', '🎉');
@@ -569,15 +576,6 @@
     }
 
     function initTheme() {
-      const savedTheme = localStorage.getItem('theme') || 'light';
-      if (savedTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-        document.getElementById('themeIcon').className = 'fa-solid fa-sun text-amber-300';
-      }
-    }
-
-    function toggleDarkMode() {
-      const isDark = document.documentElement.classList.toggle('dark');
       const savedTheme = localStorage.getItem('theme') || 'light';
       if (savedTheme === 'dark') {
         document.documentElement.classList.add('dark');
