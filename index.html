@@ -340,7 +340,7 @@
   </main>
 
   <!-- Navigation Bar Bottom -->
-  <nav class="fixed bottom-0 inset-x-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border-t border-gray-200 dark:border-slate-700/80 z-30 py-2">
+   <nav class="fixed bottom-0 inset-x-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border-t border-gray-200 dark:border-slate-700/80 z-30 py-2">
     <div class="max-w-md mx-auto flex justify-around items-center">
       <button onclick="showPage('home')" id="nav-home" class="nav-item active flex flex-col items-center gap-1 text-gray-400 dark:text-gray-400 text-[11px] font-bold transition">
         <i class="fa-solid fa-house text-lg"></i>
@@ -409,10 +409,11 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
+      // حماية إضافية تضمن إخفاء شاشة التحميل وعدم تعليق الصفحة نهائياً
       setTimeout(() => {
         hideLoader();
         checkAuthStatus();
-      }, 500);
+      }, 800);
 
       const storeStatus = localStorage.getItem('store_is_open');
       if (storeStatus === 'false') {
@@ -422,19 +423,24 @@
       try {
         if (window.supabase) {
           supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-          await fetchSettingsFromSupabase();
-          await fetchMenuFromSupabase();
+          // استخدام Promise.race لضمان عدم توقف الصفحة لو الاتصال بطيء
+          await Promise.race([
+            Promise.all([fetchSettingsFromSupabase(), fetchMenuFromSupabase()]),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+          ]);
         }
       } catch (e) {
-        console.log("استخدام البيانات المحلية");
+        console.log("استخدام البيانات المحلية البديلة بسبب بطء الاتصال");
       }
 
+      hideLoader();
       initTheme();
       renderCategoryPills();
       renderMenuPages();
       renderFavorites();
       renderOrders();
       updateCartUI();
+      checkAuthStatus();
     });
 
     function submitAuth() {
@@ -464,16 +470,6 @@
 
       const modal = document.getElementById('authModal');
       if (modal) modal.classList.add('hidden');
-
-      loadUserData();
-      showToast('مرحباً بك! تم حفظ البيانات بنجاح', '🎉');
-    }
-
-    function checkAuthStatus() {
-      const u = JSON.parse(localStorage.getItem('user_data') || '{}');
-      if (!u.name || !u.phone || !u.address) {
-        const modal = document.getElementById('authModal');
-        if (modal) modal.classList.add('hidden');
 
       loadUserData();
       showToast('مرحباً بك! تم حفظ البيانات بنجاح', '🎉');
