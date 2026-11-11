@@ -484,7 +484,6 @@
       }
     }
 
-    // جلب الإعدادات وحالة المحل ورقم الواتساب واسم المطعم من Supabase مباشرة
     async function fetchSettingsFromSupabase() {
       if (!supabaseClient) return;
       try {
@@ -511,7 +510,6 @@
       } catch (e) {}
     }
 
-    // جلب المنيو المحدث من جدول menu السحابي
     async function fetchMenuFromSupabase() {
       if (!supabaseClient) return;
       try {
@@ -883,7 +881,6 @@
         total: finalTotal
       };
 
-      // حفظ الطلب في جدول orders السحابي مع معالجة الأخطاء
       if (supabaseClient) {
         try {
           const { error } = await supabaseClient.from('orders').insert([
